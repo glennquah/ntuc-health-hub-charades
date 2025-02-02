@@ -13,7 +13,7 @@ export type Topic =
   | "Singapore Icons";
 
 export interface GameSettings {
-  language: Language;
+  languages: Language[];
   topics: Topic[];
   timer: number;
 }

@@ -8,13 +8,20 @@ import { Language, Topic, GameSettings, GameState } from "@/types/game";
 import { Button } from "@/components/ui/button";
 
 export default function Index() {
-  const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({});
+  const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({
+    languages: [],
+    topics: [],
+  });
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [step, setStep] = useState<'language' | 'topics' | 'timer' | 'game' | 'results'>('language');
 
-  const handleLanguageSelect = (language: Language) => {
-    setGameSettings(prev => ({ ...prev, language }));
-    setStep('topics');
+  const handleLanguageToggle = (language: Language) => {
+    setGameSettings(prev => ({
+      ...prev,
+      languages: prev.languages?.includes(language)
+        ? prev.languages.filter(l => l !== language)
+        : [...(prev.languages || []), language]
+    }));
   };
 
   const handleTopicToggle = (topic: Topic) => {
@@ -35,7 +42,7 @@ export default function Index() {
   const startGame = () => {
     setGameState({
       score: 0,
-      currentWord: "Laksa", // This would come from your word list based on topics
+      currentWord: "Laksa",
       timeLeft: gameSettings.timer || 60,
       isPlaying: true
     });
@@ -45,14 +52,14 @@ export default function Index() {
     setGameState(prev => prev ? {
       ...prev,
       score: prev.score + 1,
-      currentWord: "Merlion" // This would be the next word from your list
+      currentWord: "Merlion"
     } : null);
   };
 
   const handlePass = () => {
     setGameState(prev => prev ? {
       ...prev,
-      currentWord: "Chope" // This would be the next word from your list
+      currentWord: "Chope"
     } : null);
   };
 
@@ -70,11 +77,11 @@ export default function Index() {
   }, [gameState?.isPlaying]);
 
   return (
-    <div className="min-h-screen bg-cream p-4">
+    <div className="min-h-screen bg-cream flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
+        className="max-w-4xl w-full"
       >
         <h1 className="text-4xl md:text-6xl font-bold text-center text-coffee-dark mb-8">
           Lai Lai Guess Guess!
@@ -82,8 +89,9 @@ export default function Index() {
 
         {step === 'language' && (
           <LanguageSelector
-            selectedLanguage={gameSettings.language || null}
-            onSelect={handleLanguageSelect}
+            selectedLanguages={gameSettings.languages || []}
+            onToggleLanguage={handleLanguageToggle}
+            onNext={() => setStep('topics')}
           />
         )}
 
@@ -120,6 +128,7 @@ export default function Index() {
             onCorrect={handleCorrect}
             onPass={handlePass}
             onTimeUp={() => setStep('results')}
+            imageUrl="/placeholder.svg"
           />
         )}
 
@@ -133,7 +142,7 @@ export default function Index() {
             <p className="text-2xl">Your Score: {gameState.score}</p>
             <Button
               onClick={() => {
-                setGameSettings({});
+                setGameSettings({ languages: [], topics: [] });
                 setGameState(null);
                 setStep('language');
               }}
