@@ -19,6 +19,9 @@ export default {
     },
     extend: {
       colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
         cream: "#FDF5E6",
         coffee: {
           light: "#D4BBA3",
