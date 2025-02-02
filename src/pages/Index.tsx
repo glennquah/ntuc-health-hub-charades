@@ -1,137 +1,149 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Heart, HeartPulse } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { TopicSelector } from "@/components/TopicSelector";
+import { TimerSelector } from "@/components/TimerSelector";
+import { GameScreen } from "@/components/GameScreen";
+import { Language, Topic, GameSettings, GameState } from "@/types/game";
+import { Button } from "@/components/ui/button";
 
-const Index = () => {
-  const [noCount, setNoCount] = useState(0);
-  const [showDialog, setShowDialog] = useState(false);
-  const { toast } = useToast();
-  
-  const noButtonText = [
-    "No",
-    "Are you sure?",
-    "Really sure?",
-    "Think again!",
-    "Last chance!",
-    "Surely not?",
-    "You might regret this!",
-    "Give it another thought!",
-    "Are you absolutely sure?",
-    "This could be a mistake!",
-    "Have a heart!",
-    "Don't be so cold!",
-    "Change of heart?",
-    "Wouldn't you reconsider?",
-    "Is that your final answer?",
-    "You're breaking my heart ;(",
-  ];
+export default function Index() {
+  const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({});
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [step, setStep] = useState<'language' | 'topics' | 'timer' | 'game' | 'results'>('language');
 
-  const getNoButtonText = () => {
-    return noCount >= noButtonText.length
-      ? noButtonText[noButtonText.length - 1]
-      : noButtonText[noCount];
+  const handleLanguageSelect = (language: Language) => {
+    setGameSettings(prev => ({ ...prev, language }));
+    setStep('topics');
   };
 
-  const handleNoClick = () => {
-    setNoCount(noCount + 1);
-    // Make the "Yes" button bigger with each "No"
-    const yesButton = document.querySelector(".yes-button");
-    if (yesButton) {
-      const scale = 1 + noCount * 0.1;
-      yesButton.style.transform = `scale(${scale})`;
-    }
+  const handleTopicToggle = (topic: Topic) => {
+    setGameSettings(prev => ({
+      ...prev,
+      topics: prev.topics?.includes(topic)
+        ? prev.topics.filter(t => t !== topic)
+        : [...(prev.topics || []), topic]
+    }));
   };
 
-  const handleYesClick = () => {
-    setShowDialog(true);
-    toast({
-      title: "Yay! 🎉",
-      description: "I knew you'd say yes! Get ready for the best Valentine's Day ever!",
+  const handleTimerSelect = (timer: number) => {
+    setGameSettings(prev => ({ ...prev, timer }));
+    setStep('game');
+    startGame();
+  };
+
+  const startGame = () => {
+    setGameState({
+      score: 0,
+      currentWord: "Laksa", // This would come from your word list based on topics
+      timeLeft: gameSettings.timer || 60,
+      isPlaying: true
     });
   };
 
+  const handleCorrect = () => {
+    setGameState(prev => prev ? {
+      ...prev,
+      score: prev.score + 1,
+      currentWord: "Merlion" // This would be the next word from your list
+    } : null);
+  };
+
+  const handlePass = () => {
+    setGameState(prev => prev ? {
+      ...prev,
+      currentWord: "Chope" // This would be the next word from your list
+    } : null);
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (gameState?.isPlaying && gameState.timeLeft > 0) {
+      timer = setInterval(() => {
+        setGameState(prev => prev ? {
+          ...prev,
+          timeLeft: prev.timeLeft - 1
+        } : null);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [gameState?.isPlaying]);
+
   return (
-    <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-4 text-coffee-dark">
+    <div className="min-h-screen bg-cream p-4">
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-4xl mx-auto"
       >
-        <h1 className="text-4xl md:text-6xl font-bold mb-8 text-accent">
-          Will you be my Valentine?
+        <h1 className="text-4xl md:text-6xl font-bold text-center text-coffee-dark mb-8">
+          Lai Lai Guess Guess!
         </h1>
-        
-        <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="mb-8"
-        >
-          <Heart className="w-24 h-24 md:w-32 md:h-32 mx-auto text-red-500" fill="currentColor" />
-        </motion.div>
 
-        <div className="space-y-4">
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="inline-block"
-          >
-            <Button
-              onClick={handleYesClick}
-              className="yes-button bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-full text-xl transition-all duration-300"
-              size="lg"
-            >
-              Yes <HeartPulse className="ml-2" />
-            </Button>
-          </motion.div>
+        {step === 'language' && (
+          <LanguageSelector
+            selectedLanguage={gameSettings.language || null}
+            onSelect={handleLanguageSelect}
+          />
+        )}
 
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="inline-block"
-          >
-            <Button
-              onClick={handleNoClick}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-8 py-4 rounded-full text-xl ml-4"
-              style={{
-                fontSize: `${Math.max(1, 1 - noCount * 0.1)}rem`,
-              }}
-              size="lg"
-            >
-              {getNoButtonText()}
-            </Button>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="bg-pink-50">
-          <DialogHeader>
-            <DialogTitle className="text-2xl text-center text-red-500">
-              🎉 Woohoo! Best Decision Ever! 🎉
-            </DialogTitle>
-          </DialogHeader>
-          <div className="text-center space-y-4">
-            <p className="text-lg">
-              I promise to make this Valentine's Day absolutely amazing! 
-            </p>
-            <p className="text-sm text-gray-600">
-              (No refunds or exchanges available 😉)
-            </p>
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-            >
-              <Heart className="w-16 h-16 mx-auto text-red-500" fill="currentColor" />
-            </motion.div>
+        {step === 'topics' && (
+          <div className="space-y-6">
+            <TopicSelector
+              selectedTopics={gameSettings.topics || []}
+              onToggleTopic={handleTopicToggle}
+            />
+            <div className="flex justify-center">
+              <Button
+                onClick={() => setStep('timer')}
+                disabled={!gameSettings.topics?.length}
+                className="text-lg px-8"
+              >
+                Next
+              </Button>
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+
+        {step === 'timer' && (
+          <TimerSelector
+            selectedTime={gameSettings.timer || 60}
+            onSelect={handleTimerSelect}
+          />
+        )}
+
+        {step === 'game' && gameState && (
+          <GameScreen
+            word={gameState.currentWord}
+            timeLeft={gameState.timeLeft}
+            score={gameState.score}
+            onCorrect={handleCorrect}
+            onPass={handlePass}
+            onTimeUp={() => setStep('results')}
+          />
+        )}
+
+        {step === 'results' && gameState && (
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-center space-y-6"
+          >
+            <h2 className="text-3xl font-bold text-coffee-dark">Game Over!</h2>
+            <p className="text-2xl">Your Score: {gameState.score}</p>
+            <Button
+              onClick={() => {
+                setGameSettings({});
+                setGameState(null);
+                setStep('language');
+              }}
+              className="text-lg px-8"
+            >
+              Play Again
+            </Button>
+          </motion.div>
+        )}
+      </motion.div>
     </div>
   );
-};
-
-export default Index;
+}

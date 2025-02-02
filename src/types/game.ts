@@ -1,0 +1,26 @@
+export type Language = "English" | "Chinese" | "Hokkien" | "Cantonese";
+
+export type Topic = 
+  | "Singapore Festive"
+  | "Singapore Slang"
+  | "Local Food and Drinks"
+  | "Singapore Landmarks"
+  | "Famous Local People"
+  | "Everyday Local Life"
+  | "Old-School Games"
+  | "Singlish Phrases"
+  | "MRT Stations"
+  | "Singapore Icons";
+
+export interface GameSettings {
+  language: Language;
+  topics: Topic[];
+  timer: number;
+}
+
+export interface GameState {
+  score: number;
+  currentWord: string;
+  timeLeft: number;
+  isPlaying: boolean;
+}
