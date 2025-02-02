@@ -7,6 +7,23 @@ import { GameScreen } from "@/components/GameScreen";
 import { Language, Topic, GameSettings, GameState } from "@/types/game";
 import { Button } from "@/components/ui/button";
 
+// Temporary word database - replace with actual database later
+const wordDatabase = {
+  "Singapore Festive": {
+    English: ["Chinese New Year", "Hari Raya", "Deepavali"],
+    Chinese: ["农历新年", "开斋节", "屠妖节"],
+    Hokkien: ["旧年", "开斋节", "屠妖节"],
+    Cantonese: ["年三十", "开斋节", "屠妖节"]
+  },
+  "Local Food and Drinks": {
+    English: ["Laksa", "Chicken Rice", "Kopi"],
+    Chinese: ["叻沙", "海南鸡饭", "咖啡"],
+    Hokkien: ["叻沙", "鸡饭", "咖啡"],
+    Cantonese: ["喇沙", "鸡饭", "咖啡"]
+  }
+  // Add more topics and words as needed
+};
+
 export default function Index() {
   const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({
     languages: [],
@@ -33,6 +50,27 @@ export default function Index() {
     }));
   };
 
+  const getRandomWord = () => {
+    const selectedTopics = gameSettings.topics || [];
+    const selectedLanguages = gameSettings.languages || [];
+    
+    // Get all words from selected topics
+    const allWords: { word: string; language: Language }[] = [];
+    
+    selectedTopics.forEach(topic => {
+      selectedLanguages.forEach(language => {
+        const wordsForTopic = wordDatabase[topic]?.[language] || [];
+        wordsForTopic.forEach(word => {
+          allWords.push({ word, language });
+        });
+      });
+    });
+    
+    // Get a random word from the combined pool
+    const randomIndex = Math.floor(Math.random() * allWords.length);
+    return allWords[randomIndex]?.word || "No word available";
+  };
+
   const handleTimerSelect = (timer: number) => {
     setGameSettings(prev => ({ ...prev, timer }));
     setStep('game');
@@ -42,7 +80,7 @@ export default function Index() {
   const startGame = () => {
     setGameState({
       score: 0,
-      currentWord: "Laksa",
+      currentWord: getRandomWord(),
       timeLeft: gameSettings.timer || 60,
       isPlaying: true
     });
@@ -52,14 +90,14 @@ export default function Index() {
     setGameState(prev => prev ? {
       ...prev,
       score: prev.score + 1,
-      currentWord: "Merlion"
+      currentWord: getRandomWord()
     } : null);
   };
 
   const handlePass = () => {
     setGameState(prev => prev ? {
       ...prev,
-      currentWord: "Chope"
+      currentWord: getRandomWord()
     } : null);
   };
 
@@ -96,21 +134,11 @@ export default function Index() {
         )}
 
         {step === 'topics' && (
-          <div className="space-y-6">
-            <TopicSelector
-              selectedTopics={gameSettings.topics || []}
-              onToggleTopic={handleTopicToggle}
-            />
-            <div className="flex justify-center">
-              <Button
-                onClick={() => setStep('timer')}
-                disabled={!gameSettings.topics?.length}
-                className="text-lg px-8"
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          <TopicSelector
+            selectedTopics={gameSettings.topics || []}
+            onToggleTopic={handleTopicToggle}
+            onNext={() => setStep('timer')}
+          />
         )}
 
         {step === 'timer' && (
@@ -128,7 +156,6 @@ export default function Index() {
             onCorrect={handleCorrect}
             onPass={handlePass}
             onTimeUp={() => setStep('results')}
-            imageUrl="/placeholder.svg"
           />
         )}
 
