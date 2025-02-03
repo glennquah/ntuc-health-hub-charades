@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { motion } from 'framer-motion'
 import { Loader2, Medal, Star, Trophy } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import logo from './../../public/ntuchealth.svg'
 
 export default function Leaderboard() {
   // Fetch overall leaderboard data
@@ -109,6 +111,17 @@ export default function Leaderboard() {
       <div className="max-w-4xl mx-auto">
         {/* Overall Leaderboard */}
         <div className="text-center mb-6">
+          <div className="flex flex-col items-center justify-center py-2">
+            <Link to="/">
+              <img
+                src={logo}
+                alt="Lai Lai Guess Guess!"
+                width={250}
+                height={250}
+                className="cursor-pointer"
+              />
+            </Link>
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold text-coffee-dark mb-4 flex items-center justify-center gap-4">
             <Trophy className="w-12 h-12 text-yellow-500" />
             Leaderboard
