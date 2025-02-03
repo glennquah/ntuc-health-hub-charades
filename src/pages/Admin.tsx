@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -8,6 +9,8 @@ import { useState } from 'react'
 
 export default function Admin() {
   const [newTopic, setNewTopic] = useState('')
+  const [newDescription, setNewDescription] = useState('')
+  const [newInstructions, setNewInstructions] = useState('')
   const [translations, setTranslations] = useState<Record<string, string>>({})
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null)
   const [expandedTopics, setExpandedTopics] = useState<number[]>([])
@@ -28,10 +31,18 @@ export default function Admin() {
   })
 
   const addTopicMutation = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({
+      name,
+      description,
+      instructions,
+    }: {
+      name: string
+      description: string
+      instructions: string
+    }) => {
       const { data, error } = await supabase
         .from('topics')
-        .insert([{ name }])
+        .insert([{ name, description, instructions }])
         .select()
       if (error) throw error
       return data
@@ -39,6 +50,8 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['topics'] })
       setNewTopic('')
+      setNewDescription('')
+      setNewInstructions('')
       toast({
         title: 'Success',
         description: 'Topic added successfully',
@@ -111,8 +124,19 @@ export default function Admin() {
 
   const handleAddTopic = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newTopic.trim()) return
-    addTopicMutation.mutate(newTopic)
+    if (!newTopic.trim() || !newDescription.trim() || !newInstructions.trim()) {
+      toast({
+        title: 'Error',
+        description: 'All fields are required.',
+        variant: 'destructive',
+      })
+      return
+    }
+    addTopicMutation.mutate({
+      name: newTopic,
+      description: newDescription,
+      instructions: newInstructions,
+    })
   }
 
   const handleAddWord = (topicId: number) => {
@@ -152,12 +176,24 @@ export default function Admin() {
           {/* Add Topic Form */}
           <div className="py-6">
             <h2 className="text-2xl font-semibold mb-4">Add New Deck</h2>
-            <form onSubmit={handleAddTopic} className="flex gap-4">
+            <form onSubmit={handleAddTopic} className="space-y-4">
               <Input
                 value={newTopic}
                 onChange={(e) => setNewTopic(e.target.value)}
                 placeholder="Enter topic name"
-                className="flex-1"
+                className="w-full"
+              />
+              <Textarea
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                placeholder="Enter description"
+                className="w-full"
+              />
+              <Textarea
+                value={newInstructions}
+                onChange={(e) => setNewInstructions(e.target.value)}
+                placeholder="Enter instructions"
+                className="w-full"
               />
               <Button
                 type="submit"
@@ -208,6 +244,12 @@ export default function Admin() {
 
                 {expandedTopics.includes(topic.id) && (
                   <div className="space-y-4 pt-4">
+                    <div className="text-sm">
+                      Description: {topic.description}
+                    </div>
+                    <div className="text-sm">
+                      Instructions: {topic.instructions}
+                    </div>
                     {/* Add Word Form */}
                     <div className="bg-white p-4 py-6 rounded-lg border border-gray">
                       <h4 className="font-semibold mb-2">Add New Word</h4>
