@@ -212,27 +212,18 @@ export default function Index() {
                   placeholder="Enter your name"
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
-                  className="max-w-xs mx-auto"
+                  className="max-w-xs mx-auto py-6 px-4"
                 />
-                <div className="space-x-4">
+                <div className="space-x-4 py-4">
                   <Button
                     type="submit"
                     disabled={
                       !playerName.trim() || submitScoreMutation.isPending
                     }
+                    className="text-lg px-12 py-4"
+                    variant="outline"
                   >
                     Submit Score
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setGameSettings({ languages: [], topics: [] })
-                      setGameState(null)
-                      setStep('language')
-                    }}
-                  >
-                    Play Again
                   </Button>
                 </div>
               </form>
