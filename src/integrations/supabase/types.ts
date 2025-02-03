@@ -15,18 +15,21 @@ export type Database = {
           id: number
           name: string
           score: number
+          deck: string
         }
         Insert: {
           created_at?: string
           id?: number
           name: string
           score: number
+          deck: string
         }
         Update: {
           created_at?: string
           id?: number
           name?: string
           score?: number
+          deck?: string
         }
         Relationships: []
       }

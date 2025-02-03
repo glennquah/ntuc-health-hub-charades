@@ -53,7 +53,7 @@ export default function Index() {
     mutationFn: async ({ name, score }: { name: string; score: number }) => {
       const { data, error } = await supabase
         .from('leaderboard')
-        .insert([{ name, score }])
+        .insert([{ name, score, deck: gameSettings.topic }])
         .select()
       if (error) throw error
       return data
