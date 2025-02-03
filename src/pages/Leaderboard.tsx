@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Trophy } from "lucide-react";
+import { Loader2, Trophy, Medal, Star } from "lucide-react";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 
 export default function Leaderboard() {
   const { data: scores, isLoading } = useQuery({
@@ -20,41 +21,61 @@ export default function Leaderboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin text-coffee-dark" />
       </div>
     );
   }
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-center text-coffee-dark mb-8">
-        <Trophy className="inline-block mr-2 text-accent" />
-        Leaderboard
-      </h1>
+  const getRankIcon = (index: number) => {
+    switch (index) {
+      case 0:
+        return <Trophy className="w-6 h-6 text-yellow-500" />;
+      case 1:
+        return <Medal className="w-6 h-6 text-gray-400" />;
+      case 2:
+        return <Medal className="w-6 h-6 text-amber-600" />;
+      default:
+        return <Star className="w-6 h-6 text-coffee-light" />;
+    }
+  };
 
-      <div className="max-w-2xl mx-auto bg-cream rounded-lg shadow-lg overflow-hidden">
-        <div className="p-6">
+  return (
+    <div className="min-h-screen bg-cream py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold text-coffee-dark mb-4 flex items-center justify-center gap-4">
+            <Trophy className="w-12 h-12 text-yellow-500" />
+            Leaderboard
+          </h1>
+          <p className="text-coffee-medium text-lg">Top 10 Players</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-xl overflow-hidden">
           {scores?.map((score, index) => (
-            <div
+            <motion.div
               key={score.id}
-              className="flex items-center justify-between p-4 border-b last:border-0 animate-fadeIn"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`flex items-center justify-between p-6 ${
+                index !== scores.length - 1 ? 'border-b border-gray-100' : ''
+              } hover:bg-gray-50 transition-colors`}
             >
-              <div className="flex items-center gap-4">
-                <span className="text-2xl font-bold text-coffee-dark">
-                  #{index + 1}
-                </span>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-cream">
+                  {getRankIcon(index)}
+                </div>
                 <div>
-                  <h3 className="font-semibold text-lg">{score.name}</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-bold text-xl text-coffee-dark">{score.name}</h3>
+                  <p className="text-sm text-gray-500">
                     {format(new Date(score.created_at), "MMM d, yyyy")}
                   </p>
                 </div>
               </div>
-              <span className="text-xl font-bold text-accent">
+              <div className="text-3xl font-bold text-coffee-dark">
                 {score.score}
-              </span>
-            </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>

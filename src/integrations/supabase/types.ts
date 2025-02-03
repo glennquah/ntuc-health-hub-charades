@@ -82,7 +82,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      insert_topic_and_words: {
+        Args: {
+          topic_name: string
+          words_data: Json[]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
