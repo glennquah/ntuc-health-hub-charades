@@ -4,12 +4,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Timer, Check, X } from "lucide-react";
 
 interface GameScreenProps {
-  word: string;
+  word: {
+    translations: Record<string, string>;
+  };
   timeLeft: number;
   score: number;
   onCorrect: () => void;
   onPass: () => void;
   onTimeUp: () => void;
+  selectedLanguages: string[];
   imageUrl?: string;
 }
 
@@ -20,6 +23,7 @@ export function GameScreen({
   onCorrect, 
   onPass, 
   onTimeUp,
+  selectedLanguages,
   imageUrl = "/placeholder.svg"
 }: GameScreenProps) {
   const [showCorrectAnimation, setShowCorrectAnimation] = useState(false);
@@ -53,7 +57,7 @@ export function GameScreen({
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={word}
+            key={Object.values(word.translations).join('-')}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
@@ -61,13 +65,20 @@ export function GameScreen({
           >
             <motion.img
               src={imageUrl}
-              alt={word}
+              alt="Word"
               className="w-48 h-48 object-cover rounded-lg mx-auto"
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             />
-            <h1 className="text-4xl font-bold text-coffee-dark mt-4">{word}</h1>
+            <div className="space-y-2 mt-4">
+              {selectedLanguages.map((lang) => (
+                <div key={lang} className="text-lg">
+                  <span className="font-semibold">{lang}:</span>{" "}
+                  {word.translations[lang]}
+                </div>
+              ))}
+            </div>
           </motion.div>
         </AnimatePresence>
 

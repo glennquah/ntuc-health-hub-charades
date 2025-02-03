@@ -6,31 +6,52 @@ import { TimerSelector } from "@/components/TimerSelector";
 import { GameScreen } from "@/components/GameScreen";
 import { Language, Topic, GameSettings, GameState } from "@/types/game";
 import { Button } from "@/components/ui/button";
-
-// Temporary word database - replace with actual database later
-const wordDatabase = {
-  "Singapore Festive": {
-    English: ["Chinese New Year", "Hari Raya", "Deepavali"],
-    Chinese: ["农历新年", "开斋节", "屠妖节"],
-    Hokkien: ["旧年", "开斋节", "屠妖节"],
-    Cantonese: ["年三十", "开斋节", "屠妖节"]
-  },
-  "Local Food and Drinks": {
-    English: ["Laksa", "Chicken Rice", "Kopi"],
-    Chinese: ["叻沙", "海南鸡饭", "咖啡"],
-    Hokkien: ["叻沙", "鸡饭", "咖啡"],
-    Cantonese: ["喇沙", "鸡饭", "咖啡"]
-  }
-  // Add more topics and words as needed
-};
+import { Input } from "@/components/ui/input";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Index() {
+  const navigate = useNavigate();
   const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({
     languages: [],
     topics: [],
   });
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [step, setStep] = useState<'language' | 'topics' | 'timer' | 'game' | 'results'>('language');
+  const [playerName, setPlayerName] = useState("");
+
+  const { data: words } = useQuery({
+    queryKey: ['words', gameSettings.topics],
+    enabled: gameSettings.topics?.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('words')
+        .select('*, topics!inner(*)')
+        .in('topics.name', gameSettings.topics || []);
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const submitScoreMutation = useMutation({
+    mutationFn: async ({ name, score }: { name: string; score: number }) => {
+      const { data, error } = await supabase
+        .from('leaderboard')
+        .insert([{ name, score }])
+        .select();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Score submitted!",
+        description: "Your score has been added to the leaderboard.",
+      });
+      navigate('/leaderboard');
+    }
+  });
 
   const handleLanguageToggle = (language: Language) => {
     setGameSettings(prev => ({
@@ -51,24 +72,9 @@ export default function Index() {
   };
 
   const getRandomWord = () => {
-    const selectedTopics = gameSettings.topics || [];
-    const selectedLanguages = gameSettings.languages || [];
-    
-    // Get all words from selected topics
-    const allWords: { word: string; language: Language }[] = [];
-    
-    selectedTopics.forEach(topic => {
-      selectedLanguages.forEach(language => {
-        const wordsForTopic = wordDatabase[topic]?.[language] || [];
-        wordsForTopic.forEach(word => {
-          allWords.push({ word, language });
-        });
-      });
-    });
-    
-    // Get a random word from the combined pool
-    const randomIndex = Math.floor(Math.random() * allWords.length);
-    return allWords[randomIndex]?.word || "No word available";
+    if (!words || words.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * words.length);
+    return words[randomIndex];
   };
 
   const handleTimerSelect = (timer: number) => {
@@ -99,6 +105,15 @@ export default function Index() {
       ...prev,
       currentWord: getRandomWord()
     } : null);
+  };
+
+  const handleSubmitScore = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gameState || !playerName.trim()) return;
+    submitScoreMutation.mutate({
+      name: playerName,
+      score: gameState.score
+    });
   };
 
   useEffect(() => {
@@ -148,7 +163,7 @@ export default function Index() {
           />
         )}
 
-        {step === 'game' && gameState && (
+        {step === 'game' && gameState && gameState.currentWord && (
           <GameScreen
             word={gameState.currentWord}
             timeLeft={gameState.timeLeft}
@@ -156,6 +171,7 @@ export default function Index() {
             onCorrect={handleCorrect}
             onPass={handlePass}
             onTimeUp={() => setStep('results')}
+            selectedLanguages={gameSettings.languages || []}
           />
         )}
 
@@ -167,16 +183,35 @@ export default function Index() {
           >
             <h2 className="text-3xl font-bold text-coffee-dark">Game Over!</h2>
             <p className="text-2xl">Your Score: {gameState.score}</p>
-            <Button
-              onClick={() => {
-                setGameSettings({ languages: [], topics: [] });
-                setGameState(null);
-                setStep('language');
-              }}
-              className="text-lg px-8"
-            >
-              Play Again
-            </Button>
+            
+            <form onSubmit={handleSubmitScore} className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Enter your name"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="max-w-xs mx-auto"
+              />
+              <div className="space-x-4">
+                <Button
+                  type="submit"
+                  disabled={!playerName.trim() || submitScoreMutation.isPending}
+                >
+                  Submit Score
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setGameSettings({ languages: [], topics: [] });
+                    setGameState(null);
+                    setStep('language');
+                  }}
+                >
+                  Play Again
+                </Button>
+              </div>
+            </form>
           </motion.div>
         )}
       </motion.div>
