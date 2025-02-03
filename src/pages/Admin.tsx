@@ -4,20 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Trash2 } from "lucide-react";
 
 export default function Admin() {
   const [newTopic, setNewTopic] = useState("");
-  const [newWord, setNewWord] = useState("");
+  const [translations, setTranslations] = useState<Record<string, string>>({});
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null);
-  const [translations, setTranslations] = useState({
-    English: "",
-    Chinese: "",
-    Hokkien: "",
-    Cantonese: ""
-  });
+  const [expandedTopics, setExpandedTopics] = useState<number[]>([]);
 
   const queryClient = useQueryClient();
+  const languages = ["English", "Chinese", "Hokkien", "Cantonese"];
 
   const { data: topics, isLoading: topicsLoading } = useQuery({
     queryKey: ['topics'],
@@ -46,18 +42,50 @@ export default function Admin() {
         title: "Success",
         description: "Topic added successfully",
       });
+    }
+  });
+
+  const deleteTopicMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase
+        .from('topics')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
     },
-    onError: (error) => {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['topics'] });
       toast({
-        title: "Error",
-        description: "Failed to add topic: " + error.message,
-        variant: "destructive",
+        title: "Success",
+        description: "Topic deleted successfully",
+      });
+    }
+  });
+
+  const deleteWordMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase
+        .from('words')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['topics'] });
+      toast({
+        title: "Success",
+        description: "Word deleted successfully",
       });
     }
   });
 
   const addWordMutation = useMutation({
     mutationFn: async ({ topicId, translations }: { topicId: number, translations: Record<string, string> }) => {
+      // Validate at least one translation
+      if (Object.keys(translations).length === 0) {
+        throw new Error("At least one translation is required");
+      }
+      
       const { data, error } = await supabase
         .from('words')
         .insert([{ topic_id: topicId, translations }])
@@ -67,23 +95,10 @@ export default function Admin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['topics'] });
-      setNewWord("");
-      setTranslations({
-        English: "",
-        Chinese: "",
-        Hokkien: "",
-        Cantonese: ""
-      });
+      setTranslations({});
       toast({
         title: "Success",
         description: "Word added successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to add word: " + error.message,
-        variant: "destructive",
       });
     }
   });
@@ -94,13 +109,24 @@ export default function Admin() {
     addTopicMutation.mutate(newTopic);
   };
 
-  const handleAddWord = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedTopic || !translations.English.trim()) return;
-    addWordMutation.mutate({
-      topicId: selectedTopic,
-      translations
-    });
+  const handleAddWord = (topicId: number) => {
+    if (Object.keys(translations).length === 0) {
+      toast({
+        title: "Error",
+        description: "Please add at least one translation",
+        variant: "destructive",
+      });
+      return;
+    }
+    addWordMutation.mutate({ topicId, translations });
+  };
+
+  const toggleTopic = (topicId: number) => {
+    setExpandedTopics(prev => 
+      prev.includes(topicId) 
+        ? prev.filter(id => id !== topicId)
+        : [...prev, topicId]
+    );
   };
 
   if (topicsLoading) {
@@ -136,66 +162,82 @@ export default function Admin() {
         </form>
       </div>
 
-      {/* Add Word Form */}
-      <div className="bg-cream p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Add New Word</h2>
-        <form onSubmit={handleAddWord} className="space-y-4">
-          <select
-            className="w-full p-2 border rounded"
-            value={selectedTopic || ""}
-            onChange={(e) => setSelectedTopic(Number(e.target.value))}
-          >
-            <option value="">Select a topic</option>
-            {topics?.map((topic) => (
-              <option key={topic.id} value={topic.id}>
-                {topic.name}
-              </option>
-            ))}
-          </select>
-
-          {Object.keys(translations).map((lang) => (
-            <Input
-              key={lang}
-              value={translations[lang]}
-              onChange={(e) => setTranslations(prev => ({
-                ...prev,
-                [lang]: e.target.value
-              }))}
-              placeholder={`${lang} translation`}
-            />
-          ))}
-
-          <Button
-            type="submit"
-            disabled={addWordMutation.isPending || !selectedTopic}
-            className="w-full"
-          >
-            {addWordMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <Plus className="w-4 h-4 mr-2" />
-            )}
-            Add Word
-          </Button>
-        </form>
-      </div>
-
       {/* Topics and Words List */}
       <div className="space-y-6">
         {topics?.map((topic) => (
           <div key={topic.id} className="bg-cream p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">{topic.name}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {topic.words?.map((word) => (
-                <div key={word.id} className="bg-white p-4 rounded shadow">
-                  {Object.entries(word.translations).map(([lang, translation]) => (
-                    <div key={lang} className="text-sm">
-                      <span className="font-semibold">{lang}:</span> {translation}
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">{topic.name}</h3>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => toggleTopic(topic.id)}
+                >
+                  {expandedTopics.includes(topic.id) ? "Hide" : "Show"} Words
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => deleteTopicMutation.mutate(topic.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {expandedTopics.includes(topic.id) && (
+              <div className="space-y-4">
+                {/* Add Word Form */}
+                <div className="bg-white p-4 rounded shadow">
+                  <h4 className="font-semibold mb-2">Add New Word</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    {languages.map((lang) => (
+                      <Input
+                        key={lang}
+                        value={translations[lang] || ""}
+                        onChange={(e) => setTranslations(prev => ({
+                          ...prev,
+                          [lang]: e.target.value
+                        }))}
+                        placeholder={`${lang} translation (optional)`}
+                      />
+                    ))}
+                  </div>
+                  <Button
+                    onClick={() => handleAddWord(topic.id)}
+                    disabled={addWordMutation.isPending}
+                  >
+                    {addWordMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Plus className="w-4 h-4 mr-2" />
+                    )}
+                    Add Word
+                  </Button>
+                </div>
+
+                {/* Words List */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {topic.words?.map((word) => (
+                    <div key={word.id} className="bg-white p-4 rounded shadow group relative">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => deleteWordMutation.mutate(word.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                      {Object.entries(word.translations).map(([lang, translation]) => (
+                        <div key={lang} className="text-sm mt-4">
+                          <span className="font-semibold">{lang}:</span> {translation}
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
