@@ -11,6 +11,7 @@ export default function Admin() {
   const [translations, setTranslations] = useState<Record<string, string>>({})
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null)
   const [expandedTopics, setExpandedTopics] = useState<number[]>([])
+  const [showDeleteDialog, setShowDeleteDialog] = useState<number | null>(null)
 
   const queryClient = useQueryClient()
   const languages = ['English', 'Chinese', 'Hokkien', 'Cantonese']
@@ -58,6 +59,11 @@ export default function Admin() {
       })
     },
   })
+
+  const handleDeleteTopic = (topicId: number) => {
+    deleteTopicMutation.mutate(topicId)
+    setShowDeleteDialog(null)
+  }
 
   const deleteWordMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -141,7 +147,7 @@ export default function Admin() {
     <div className="bg-cream min-h-screen flex flex-col">
       <div className="py-12 flex flex-col items-center justify-center">
         <div className="w-full max-w-5xl">
-          <h1 className="text-4xl font-bold text-center mb-8">Admin Panel</h1>
+          <h1 className="text-4xl font-bold text-center mb-4">Admin Panel</h1>
 
           {/* Add Topic Form */}
           <div className="py-6">
@@ -174,8 +180,11 @@ export default function Admin() {
           {/* Topics and Words List */}
           <div className="space-y-6">
             {topics?.map((topic) => (
-              <div key={topic.id} className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex justify-between items-center mb-4">
+              <div
+                key={topic.id}
+                className="bg-white p-6 py-8 rounded-lg border border-gray justify-center items-center"
+              >
+                <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold">{topic.name}</h3>
                   <div className="flex gap-4">
                     <Button
@@ -189,7 +198,7 @@ export default function Admin() {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => deleteTopicMutation.mutate(topic.id)}
+                      onClick={() => setShowDeleteDialog(topic.id)}
                       className="text-lg p-2 border border-black bg-red-500 text-white"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -198,7 +207,7 @@ export default function Admin() {
                 </div>
 
                 {expandedTopics.includes(topic.id) && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 pt-4">
                     {/* Add Word Form */}
                     <div className="bg-white p-4 py-6 rounded-lg border border-gray">
                       <h4 className="font-semibold mb-2">Add New Word</h4>
@@ -265,6 +274,29 @@ export default function Admin() {
           </div>
         </div>
       </div>
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog !== null && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center">
+            <h3 className="text-2xl font-semibold">Confirm Delete</h3>
+            <p>Are you sure you want to delete this topic?</p>
+            <div className="flex justify-center gap-4 mt-4">
+              <Button
+                onClick={() => handleDeleteTopic(showDeleteDialog)}
+                className="bg-red-500 text-white px-6 py-2"
+              >
+                Yes, Delete
+              </Button>
+              <Button
+                onClick={() => setShowDeleteDialog(null)}
+                className="bg-gray-300 px-6 py-2"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
