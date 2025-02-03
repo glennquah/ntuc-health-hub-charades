@@ -1,69 +1,28 @@
-# Welcome to your Lovable project
+# Kampong Klash
 
-## Project info
+Kampong Klash is a multi-lingual charades game inspired by Singapore’s vibrant culture! This project is built using **Vite**, **React**, and **TypeScript**, with client-side routing powered by **React Router**.
 
-**URL**: https://lovable.dev/projects/e5230dc5-e986-44af-be69-65f8b4f5c017
+---
 
-## How can I edit this code?
+## **Features**
+- Multi-lingual charades game with various decks.
+- Client-side routing for pages like Home, Admin, and Leaderboard.
+- Top 10 leaderboard with scores grouped by deck.
+- Responsive design with smooth animations using **Framer Motion**.
+- Data integration with **Supabase**.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e5230dc5-e986-44af-be69-65f8b4f5c017) and start prompting.
+## **Frontend**
+•	Vite – A fast build tool that provides instant HMR (Hot Module Replacement) and optimized production builds.
+•	React – A component-based JavaScript library for building user interfaces.
+•	React Router – Client-side routing for single-page applications.
+•	TypeScript – Typed JavaScript for improved developer experience and error handling.
+•	Tailwind CSS – A utility-first CSS framework that enables rapid UI development with minimal custom CSS.
+•	Framer Motion – Animation library for React to create smooth transitions and interactions.
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/e5230dc5-e986-44af-be69-65f8b4f5c017) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Backend
+•	Supabase – Provides a real-time database (PostgreSQL), authentication, and backend API services.
+•	Supabase Storage – Used to store game assets and other static resources.
