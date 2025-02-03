@@ -6,7 +6,7 @@ interface TimerSelectorProps {
   onSelect: (time: number) => void
 }
 
-const times = [60, 90, 120, 180]
+const times = [60, 120, 180, 240]
 
 export function TimerSelector({ selectedTime, onSelect }: TimerSelectorProps) {
   return (
@@ -14,7 +14,7 @@ export function TimerSelector({ selectedTime, onSelect }: TimerSelectorProps) {
       <h2 className="text-2xl font-bold text-coffee-dark text-center">
         Select Timer
       </h2>
-      <div className="flex flex-wrap justify-center gap-8 max-w-2xl mx-auto">
+      <div className="flex flex-wrap justify-center gap-8 max-w-2xl mx-auto py-8">
         {times.map((time) => (
           <Button
             key={time}

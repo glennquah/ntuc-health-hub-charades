@@ -1,4 +1,5 @@
 import { GameScreen } from '@/components/GameScreen'
+import Header from '@/components/Header'
 import { LanguageSelector } from '@/components/LanguageSelector'
 import { TimerSelector } from '@/components/TimerSelector'
 import { TopicSelector } from '@/components/TopicSelector'
@@ -11,7 +12,6 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import logo from './../../public/ntuchealth.svg'
 
 export default function Index() {
   const navigate = useNavigate()
@@ -83,7 +83,12 @@ export default function Index() {
   const handleTimerSelect = (timer: number) => {
     setGameSettings((prev) => ({ ...prev, timer }))
     setStep('game')
-    startGame()
+    setGameState({
+      score: 0,
+      currentWord: getRandomWord(),
+      timeLeft: timer,
+      isPlaying: true,
+    })
   }
 
   const startGame = () => {
@@ -145,102 +150,97 @@ export default function Index() {
   }, [gameState?.isPlaying])
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl w-full"
-      >
-        <div>
-          <div className="flex flex-col items-center justify-center py-8">
-            <img
-              src={logo}
-              alt="Lai Lai Guess Guess!"
-              width={250}
-              height={250}
+    <div className="min-h-screen bg-cream flex flex-col">
+      <main className="flex-1 flex flex-col items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl w-full"
+        >
+          {step !== 'game' && <Header />}
+
+          {step === 'language' && (
+            <LanguageSelector
+              selectedLanguages={gameSettings.languages || []}
+              onToggleLanguage={handleLanguageToggle}
+              onNext={() => setStep('topics')}
             />
-          </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-center text-coffee-dark mb-8">
-            Lai Lai Guess Guess!
-          </h1>
-        </div>
+          )}
 
-        {step === 'language' && (
-          <LanguageSelector
-            selectedLanguages={gameSettings.languages || []}
-            onToggleLanguage={handleLanguageToggle}
-            onNext={() => setStep('topics')}
-          />
-        )}
+          {step === 'topics' && (
+            <TopicSelector
+              selectedTopics={gameSettings.topics || []}
+              onToggleTopic={handleTopicToggle}
+              onNext={() => setStep('timer')}
+            />
+          )}
 
-        {step === 'topics' && (
-          <TopicSelector
-            selectedTopics={gameSettings.topics || []}
-            onToggleTopic={handleTopicToggle}
-            onNext={() => setStep('timer')}
-          />
-        )}
+          {step === 'timer' && (
+            <TimerSelector
+              selectedTime={gameSettings.timer || 60}
+              onSelect={handleTimerSelect}
+            />
+          )}
 
-        {step === 'timer' && (
-          <TimerSelector
-            selectedTime={gameSettings.timer || 60}
-            onSelect={handleTimerSelect}
-          />
-        )}
+          {step === 'game' && gameState && gameState.currentWord && (
+            <GameScreen
+              word={gameState.currentWord}
+              timeLeft={gameState.timeLeft}
+              score={gameState.score}
+              onCorrect={handleCorrect}
+              onPass={handlePass}
+              onTimeUp={() => setStep('results')}
+              selectedLanguages={gameSettings.languages || []}
+              totalTime={gameSettings.timer || 60}
+            />
+          )}
 
-        {step === 'game' && gameState && gameState.currentWord && (
-          <GameScreen
-            word={gameState.currentWord}
-            timeLeft={gameState.timeLeft}
-            score={gameState.score}
-            onCorrect={handleCorrect}
-            onPass={handlePass}
-            onTimeUp={() => setStep('results')}
-            selectedLanguages={gameSettings.languages || []}
-          />
-        )}
+          {step === 'results' && gameState && (
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-center space-y-6"
+            >
+              <h2 className="text-3xl font-bold text-coffee-dark">
+                Game Over!
+              </h2>
+              <p className="text-2xl">Your Score: {gameState.score}</p>
 
-        {step === 'results' && gameState && (
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="text-center space-y-6"
-          >
-            <h2 className="text-3xl font-bold text-coffee-dark">Game Over!</h2>
-            <p className="text-2xl">Your Score: {gameState.score}</p>
-
-            <form onSubmit={handleSubmitScore} className="space-y-4">
-              <Input
-                type="text"
-                placeholder="Enter your name"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                className="max-w-xs mx-auto"
-              />
-              <div className="space-x-4">
-                <Button
-                  type="submit"
-                  disabled={!playerName.trim() || submitScoreMutation.isPending}
-                >
-                  Submit Score
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setGameSettings({ languages: [], topics: [] })
-                    setGameState(null)
-                    setStep('language')
-                  }}
-                >
-                  Play Again
-                </Button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-      </motion.div>
-      <p className="text-sm text-center text-gray-500 mt-12">
+              <form onSubmit={handleSubmitScore} className="space-y-4">
+                <Input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  className="max-w-xs mx-auto"
+                />
+                <div className="space-x-4">
+                  <Button
+                    type="submit"
+                    disabled={
+                      !playerName.trim() || submitScoreMutation.isPending
+                    }
+                  >
+                    Submit Score
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setGameSettings({ languages: [], topics: [] })
+                      setGameState(null)
+                      setStep('language')
+                    }}
+                  >
+                    Play Again
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          )}
+        </motion.div>
+      </main>
+      <p className="text-md text-center text-gray-500 pb-4">
         © 2025 Glenn Quah
       </p>
     </div>
