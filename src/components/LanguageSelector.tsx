@@ -1,20 +1,25 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { Language } from "@/types/game";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Language } from '@/types/game'
 
 interface LanguageSelectorProps {
-  selectedLanguages: Language[];
-  onToggleLanguage: (language: Language) => void;
-  onNext: () => void;
+  selectedLanguages: Language[]
+  onToggleLanguage: (language: Language) => void
+  onNext: () => void
 }
 
-const languages: Language[] = ["English", "Chinese", "Hokkien", "Cantonese"];
+const languages: Language[] = ['English', 'Chinese', 'Hokkien', 'Cantonese']
 
-export function LanguageSelector({ selectedLanguages, onToggleLanguage, onNext }: LanguageSelectorProps) {
+export function LanguageSelector({
+  selectedLanguages,
+  onToggleLanguage,
+  onNext,
+}: LanguageSelectorProps) {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-coffee-dark text-center">选择语言 / Select Language(s)</h2>
+      <h2 className="text-2xl font-bold text-coffee-dark text-center">
+        选择语言 | Select Language(s)
+      </h2>
       <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
         {languages.map((lang) => (
           <div
@@ -28,7 +33,7 @@ export function LanguageSelector({ selectedLanguages, onToggleLanguage, onNext }
             />
             <label
               htmlFor={lang}
-              className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-lg font-medium leading-none cursor-pointer"
             >
               {lang}
             </label>
@@ -39,11 +44,21 @@ export function LanguageSelector({ selectedLanguages, onToggleLanguage, onNext }
         <Button
           onClick={onNext}
           disabled={selectedLanguages.length === 0}
-          className="text-lg px-8"
+          className="text-lg px-12 py-4"
+          variant="outline"
         >
           Next
         </Button>
       </div>
+      <div className="text-md text-center text-gray-500 pb-4">
+        View our champions at our
+        <a
+          href="/leaderboard"
+          className="ml-2 text-blue-500 underline hover:text-blue-700 transition-colors"
+        >
+          Leaderboard
+        </a>
+      </div>
     </div>
-  );
+  )
 }
