@@ -1,26 +1,29 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { LanguageSelector } from "@/components/LanguageSelector";
-import { TopicSelector } from "@/components/TopicSelector";
-import { TimerSelector } from "@/components/TimerSelector";
-import { GameScreen } from "@/components/GameScreen";
-import { Language, Topic, GameSettings, GameState, Word } from "@/types/game";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { toast } from "@/components/ui/use-toast";
+import { GameScreen } from '@/components/GameScreen'
+import { LanguageSelector } from '@/components/LanguageSelector'
+import { TimerSelector } from '@/components/TimerSelector'
+import { TopicSelector } from '@/components/TopicSelector'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { toast } from '@/components/ui/use-toast'
+import { supabase } from '@/integrations/supabase/client'
+import { GameSettings, GameState, Language, Topic, Word } from '@/types/game'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import logo from './../../public/ntuchealth.svg'
 
 export default function Index() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({
     languages: [],
     topics: [],
-  });
-  const [gameState, setGameState] = useState<GameState | null>(null);
-  const [step, setStep] = useState<'language' | 'topics' | 'timer' | 'game' | 'results'>('language');
-  const [playerName, setPlayerName] = useState("");
+  })
+  const [gameState, setGameState] = useState<GameState | null>(null)
+  const [step, setStep] = useState<
+    'language' | 'topics' | 'timer' | 'game' | 'results'
+  >('language')
+  const [playerName, setPlayerName] = useState('')
 
   const { data: words } = useQuery({
     queryKey: ['words', gameSettings.topics],
@@ -29,116 +32,138 @@ export default function Index() {
       const { data, error } = await supabase
         .from('words')
         .select('*, topics!inner(*)')
-        .in('topics.name', gameSettings.topics || []);
-      if (error) throw error;
-      return data as Word[];
-    }
-  });
+        .in('topics.name', gameSettings.topics || [])
+      if (error) throw error
+      return data as Word[]
+    },
+  })
 
   const submitScoreMutation = useMutation({
     mutationFn: async ({ name, score }: { name: string; score: number }) => {
       const { data, error } = await supabase
         .from('leaderboard')
         .insert([{ name, score }])
-        .select();
-      if (error) throw error;
-      return data;
+        .select()
+      if (error) throw error
+      return data
     },
     onSuccess: () => {
       toast({
-        title: "Score submitted!",
-        description: "Your score has been added to the leaderboard.",
-      });
-      navigate('/leaderboard');
-    }
-  });
+        title: 'Score submitted!',
+        description: 'Your score has been added to the leaderboard.',
+      })
+      navigate('/leaderboard')
+    },
+  })
 
   const handleLanguageToggle = (language: Language) => {
-    setGameSettings(prev => ({
+    setGameSettings((prev) => ({
       ...prev,
       languages: prev.languages?.includes(language)
-        ? prev.languages.filter(l => l !== language)
-        : [...(prev.languages || []), language]
-    }));
-  };
+        ? prev.languages.filter((l) => l !== language)
+        : [...(prev.languages || []), language],
+    }))
+  }
 
   const handleTopicToggle = (topic: Topic) => {
-    setGameSettings(prev => ({
+    setGameSettings((prev) => ({
       ...prev,
       topics: prev.topics?.includes(topic)
-        ? prev.topics.filter(t => t !== topic)
-        : [...(prev.topics || []), topic]
-    }));
-  };
+        ? prev.topics.filter((t) => t !== topic)
+        : [...(prev.topics || []), topic],
+    }))
+  }
 
   const getRandomWord = (): Word | null => {
-    if (!words || words.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * words.length);
-    return words[randomIndex];
-  };
+    if (!words || words.length === 0) return null
+    const randomIndex = Math.floor(Math.random() * words.length)
+    return words[randomIndex]
+  }
 
   const handleTimerSelect = (timer: number) => {
-    setGameSettings(prev => ({ ...prev, timer }));
-    setStep('game');
-    startGame();
-  };
+    setGameSettings((prev) => ({ ...prev, timer }))
+    setStep('game')
+    startGame()
+  }
 
   const startGame = () => {
     setGameState({
       score: 0,
       currentWord: getRandomWord(),
       timeLeft: gameSettings.timer || 60,
-      isPlaying: true
-    });
-  };
+      isPlaying: true,
+    })
+  }
 
   const handleCorrect = () => {
-    setGameState(prev => prev ? {
-      ...prev,
-      score: prev.score + 1,
-      currentWord: getRandomWord()
-    } : null);
-  };
+    setGameState((prev) =>
+      prev
+        ? {
+            ...prev,
+            score: prev.score + 1,
+            currentWord: getRandomWord(),
+          }
+        : null
+    )
+  }
 
   const handlePass = () => {
-    setGameState(prev => prev ? {
-      ...prev,
-      currentWord: getRandomWord()
-    } : null);
-  };
+    setGameState((prev) =>
+      prev
+        ? {
+            ...prev,
+            currentWord: getRandomWord(),
+          }
+        : null
+    )
+  }
 
   const handleSubmitScore = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!gameState || !playerName.trim()) return;
+    e.preventDefault()
+    if (!gameState || !playerName.trim()) return
     submitScoreMutation.mutate({
       name: playerName,
-      score: gameState.score
-    });
-  };
+      score: gameState.score,
+    })
+  }
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout
     if (gameState?.isPlaying && gameState.timeLeft > 0) {
       timer = setInterval(() => {
-        setGameState(prev => prev ? {
-          ...prev,
-          timeLeft: prev.timeLeft - 1
-        } : null);
-      }, 1000);
+        setGameState((prev) =>
+          prev
+            ? {
+                ...prev,
+                timeLeft: prev.timeLeft - 1,
+              }
+            : null
+        )
+      }, 1000)
     }
-    return () => clearInterval(timer);
-  }, [gameState?.isPlaying]);
+    return () => clearInterval(timer)
+  }, [gameState?.isPlaying])
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl w-full"
       >
-        <h1 className="text-4xl md:text-6xl font-bold text-center text-coffee-dark mb-8">
-          Lai Lai Guess Guess!
-        </h1>
+        <div>
+          <div className="flex flex-col items-center justify-center py-8">
+            <img
+              src={logo}
+              alt="Lai Lai Guess Guess!"
+              width={250}
+              height={250}
+            />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold text-center text-coffee-dark mb-8">
+            Lai Lai Guess Guess!
+          </h1>
+        </div>
 
         {step === 'language' && (
           <LanguageSelector
@@ -183,7 +208,7 @@ export default function Index() {
           >
             <h2 className="text-3xl font-bold text-coffee-dark">Game Over!</h2>
             <p className="text-2xl">Your Score: {gameState.score}</p>
-            
+
             <form onSubmit={handleSubmitScore} className="space-y-4">
               <Input
                 type="text"
@@ -203,9 +228,9 @@ export default function Index() {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    setGameSettings({ languages: [], topics: [] });
-                    setGameState(null);
-                    setStep('language');
+                    setGameSettings({ languages: [], topics: [] })
+                    setGameState(null)
+                    setStep('language')
                   }}
                 >
                   Play Again
@@ -215,6 +240,9 @@ export default function Index() {
           </motion.div>
         )}
       </motion.div>
+      <p className="text-sm text-center text-gray-500 mt-12">
+        © 2025 Glenn Quah
+      </p>
     </div>
-  );
+  )
 }
