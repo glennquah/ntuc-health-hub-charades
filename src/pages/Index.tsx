@@ -4,7 +4,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { TopicSelector } from "@/components/TopicSelector";
 import { TimerSelector } from "@/components/TimerSelector";
 import { GameScreen } from "@/components/GameScreen";
-import { Language, Topic, GameSettings, GameState } from "@/types/game";
+import { Language, Topic, GameSettings, GameState, Word } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -31,7 +31,7 @@ export default function Index() {
         .select('*, topics!inner(*)')
         .in('topics.name', gameSettings.topics || []);
       if (error) throw error;
-      return data;
+      return data as Word[];
     }
   });
 
@@ -71,7 +71,7 @@ export default function Index() {
     }));
   };
 
-  const getRandomWord = () => {
+  const getRandomWord = (): Word | null => {
     if (!words || words.length === 0) return null;
     const randomIndex = Math.floor(Math.random() * words.length);
     return words[randomIndex];

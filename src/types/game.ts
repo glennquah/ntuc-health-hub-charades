@@ -18,9 +18,21 @@ export interface GameSettings {
   timer: number;
 }
 
+export interface Word {
+  id: number;
+  topic_id: number;
+  translations: Record<string, string>;
+  created_at: string;
+  topics: {
+    id: number;
+    name: string;
+    created_at: string;
+  };
+}
+
 export interface GameState {
   score: number;
-  currentWord: string;
+  currentWord: Word | null;
   timeLeft: number;
   isPlaying: boolean;
 }
