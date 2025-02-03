@@ -1,3 +1,4 @@
+import { Dashboards } from '@/components/Dashboards'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -326,6 +327,11 @@ export default function Admin() {
                 )}
               </div>
             ))}
+          </div>
+          <div className="pt-8">
+            <hr className="border-t border-black p-2" />
+            <p className="text-xl font-semibold">Admin Dashboards</p>
+            <Dashboards />
           </div>
         </div>
       </div>
