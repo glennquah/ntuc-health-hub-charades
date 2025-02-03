@@ -6,14 +6,14 @@ import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 
 interface TopicSelectorProps {
-  selectedTopics: Topic[]
-  onToggleTopic: (topic: Topic) => void
+  selectedTopic: Topic | null
+  onSelectTopic: (topic: Topic) => void
   onNext?: () => void
 }
 
 export function TopicSelector({
-  selectedTopics,
-  onToggleTopic,
+  selectedTopic,
+  onSelectTopic,
   onNext,
 }: TopicSelectorProps) {
   const { data: topics, isLoading } = useQuery({
@@ -35,21 +35,31 @@ export function TopicSelector({
     )
   }
 
+  // Add the "Rojak" deck manually
+  const allTopics = [
+    ...topics,
+    {
+      id: 'rojak',
+      name: 'Rojak',
+      description: 'A mix of all decks for an ultimate charades experience!',
+    },
+  ]
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-coffee-dark text-center">
         Select A Deck
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        {topics?.map((topic) => (
+        {allTopics.map((topic) => (
           <motion.div
             key={topic.id}
             className={`p-6 border-2 rounded-lg cursor-pointer space-y-2 shadow-lg transition-all ${
-              selectedTopics.includes(topic.name)
+              selectedTopic === topic.name
                 ? 'bg-blue-200 border-blue-500'
                 : 'hover:bg-cream/50'
             }`}
-            onClick={() => onToggleTopic(topic.name)}
+            onClick={() => onSelectTopic(topic.name)}
             whileHover={{ scale: 1.02 }}
           >
             <h3 className="text-xl font-semibold text-center">{topic.name}</h3>
@@ -62,7 +72,7 @@ export function TopicSelector({
         <div className="flex justify-center mt-8">
           <Button
             onClick={onNext}
-            disabled={selectedTopics.length === 0}
+            disabled={!selectedTopic}
             className="text-lg px-12 py-4"
             variant="outline"
           >

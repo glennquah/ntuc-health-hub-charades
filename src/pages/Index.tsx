@@ -17,7 +17,7 @@ export default function Index() {
   const navigate = useNavigate()
   const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({
     languages: [],
-    topics: [],
+    topic: '',
   })
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [step, setStep] = useState<
@@ -26,15 +26,26 @@ export default function Index() {
   const [playerName, setPlayerName] = useState('')
 
   const { data: words } = useQuery({
-    queryKey: ['words', gameSettings.topics],
-    enabled: gameSettings.topics?.length > 0,
+    queryKey: ['words', gameSettings.topic],
+    enabled: !!gameSettings.topic,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('words')
-        .select('*, topics!inner(*)')
-        .in('topics.name', gameSettings.topics || [])
-      if (error) throw error
-      return data as Word[]
+      // Check if the selected topic is "Rojak"
+      if (gameSettings.topic === 'Rojak') {
+        // Fetch all words if "Rojak" is selected
+        const { data, error } = await supabase
+          .from('words')
+          .select('*, topics!inner(*)')
+        if (error) throw error
+        return data as Word[]
+      } else {
+        // Fetch words for the selected topic only
+        const { data, error } = await supabase
+          .from('words')
+          .select('*, topics!inner(*)')
+          .eq('topics.name', gameSettings.topic)
+        if (error) throw error
+        return data as Word[]
+      }
     },
   })
 
@@ -65,13 +76,8 @@ export default function Index() {
     }))
   }
 
-  const handleTopicToggle = (topic: Topic) => {
-    setGameSettings((prev) => ({
-      ...prev,
-      topics: prev.topics?.includes(topic)
-        ? prev.topics.filter((t) => t !== topic)
-        : [...(prev.topics || []), topic],
-    }))
+  const handleTopicSelect = (topic: Topic) => {
+    setGameSettings((prev) => ({ ...prev, topic }))
   }
 
   const getRandomWord = (): Word | null => {
@@ -169,8 +175,8 @@ export default function Index() {
 
           {step === 'topics' && (
             <TopicSelector
-              selectedTopics={gameSettings.topics || []}
-              onToggleTopic={handleTopicToggle}
+              selectedTopic={gameSettings.topic || ''}
+              onSelectTopic={handleTopicSelect}
               onNext={() => setStep('timer')}
             />
           )}
@@ -179,6 +185,7 @@ export default function Index() {
             <TimerSelector
               selectedTime={gameSettings.timer || 60}
               onSelect={handleTimerSelect}
+              selectedTopic={gameSettings.topic || ''}
             />
           )}
 

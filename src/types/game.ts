@@ -4,7 +4,7 @@ export type Topic = string
 
 export interface GameSettings {
   languages: Language[]
-  topics: Topic[]
+  topic: Topic
   timer: number
 }
 
