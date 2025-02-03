@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import logo from './../../public/ntuchealth.svg'
 
 export default function Admin() {
   const [newTopic, setNewTopic] = useState('')
@@ -171,6 +173,17 @@ export default function Admin() {
     <div className="bg-cream min-h-screen flex flex-col">
       <div className="py-12 flex flex-col items-center justify-center">
         <div className="w-full max-w-5xl">
+          <div className="flex flex-col items-center justify-center py-2">
+            <Link to="/">
+              <img
+                src={logo}
+                alt="Lai Lai Guess Guess!"
+                width={250}
+                height={250}
+                className="cursor-pointer"
+              />
+            </Link>
+          </div>
           <h1 className="text-4xl font-bold text-center mb-4">Admin Panel</h1>
 
           {/* Add Topic Form */}
