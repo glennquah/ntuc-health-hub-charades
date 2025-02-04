@@ -171,7 +171,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="bg-cream min-h-screen flex flex-col">
+    <div className="bg-cream min-h-screen flex flex-col px-8">
       <div className="py-12 flex flex-col items-center justify-center">
         <div className="w-full max-w-5xl">
           <div className="flex flex-col items-center justify-center py-2">
