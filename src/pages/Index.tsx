@@ -24,21 +24,19 @@ export default function Index() {
     'language' | 'topics' | 'timer' | 'game' | 'results'
   >('language')
   const [playerName, setPlayerName] = useState('')
+  const [usedWordIds, setUsedWordIds] = useState<Array<string | number>>([])
 
   const { data: words } = useQuery({
     queryKey: ['words', gameSettings.topic],
     enabled: !!gameSettings.topic,
     queryFn: async () => {
-      // Check if the selected topic is "Rojak"
       if (gameSettings.topic === 'Rojak') {
-        // Fetch all words if "Rojak" is selected
         const { data, error } = await supabase
           .from('words')
           .select('*, topics!inner(*)')
         if (error) throw error
         return data as Word[]
       } else {
-        // Fetch words for the selected topic only
         const { data, error } = await supabase
           .from('words')
           .select('*, topics!inner(*)')
@@ -80,53 +78,65 @@ export default function Index() {
     setGameSettings((prev) => ({ ...prev, topic }))
   }
 
-  const getRandomWord = (): Word | null => {
+  // This function picks a random word from the available ones and updates the used list.
+  const getAndStoreRandomWord = (): Word | null => {
     if (!words || words.length === 0) return null
-    const randomIndex = Math.floor(Math.random() * words.length)
-    return words[randomIndex]
+    const availableWords = words.filter(
+      (word) => !usedWordIds.includes(word.id)
+    )
+    if (availableWords.length === 0) return null
+    const randomIndex = Math.floor(Math.random() * availableWords.length)
+    const word = availableWords[randomIndex]
+    setUsedWordIds((prev) => [...prev, word.id])
+    return word
   }
 
   const handleTimerSelect = (timer: number) => {
     setGameSettings((prev) => ({ ...prev, timer }))
+    setUsedWordIds([]) // Reset used words for new game
+    const firstWord = getAndStoreRandomWord()
     setStep('game')
     setGameState({
       score: 0,
-      currentWord: getRandomWord(),
+      currentWord: firstWord,
       timeLeft: timer,
       isPlaying: true,
     })
   }
 
   const startGame = () => {
+    setUsedWordIds([])
+    const firstWord = getAndStoreRandomWord()
     setGameState({
       score: 0,
-      currentWord: getRandomWord(),
+      currentWord: firstWord,
       timeLeft: gameSettings.timer || 60,
       isPlaying: true,
     })
   }
 
   const handleCorrect = () => {
-    setGameState((prev) =>
-      prev
-        ? {
-            ...prev,
-            score: prev.score + 1,
-            currentWord: getRandomWord(),
-          }
-        : null
-    )
+    const newWord = getAndStoreRandomWord()
+    if (newWord) {
+      setGameState((prev) =>
+        prev ? { ...prev, score: prev.score + 1, currentWord: newWord } : null
+      )
+    } else {
+      setGameState((prev) =>
+        prev ? { ...prev, score: prev.score + 1, currentWord: null } : null
+      )
+      setStep('results')
+    }
   }
 
   const handlePass = () => {
-    setGameState((prev) =>
-      prev
-        ? {
-            ...prev,
-            currentWord: getRandomWord(),
-          }
-        : null
-    )
+    const newWord = getAndStoreRandomWord()
+    if (newWord) {
+      setGameState((prev) => (prev ? { ...prev, currentWord: newWord } : null))
+    } else {
+      setGameState((prev) => (prev ? { ...prev, currentWord: null } : null))
+      setStep('results')
+    }
   }
 
   const handleSubmitScore = (e: React.FormEvent) => {
@@ -143,17 +153,12 @@ export default function Index() {
     if (gameState?.isPlaying && gameState.timeLeft > 0) {
       timer = setInterval(() => {
         setGameState((prev) =>
-          prev
-            ? {
-                ...prev,
-                timeLeft: prev.timeLeft - 1,
-              }
-            : null
+          prev ? { ...prev, timeLeft: prev.timeLeft - 1 } : null
         )
       }, 1000)
     }
     return () => clearInterval(timer)
-  }, [gameState?.isPlaying])
+  }, [gameState?.isPlaying, gameState?.timeLeft])
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
