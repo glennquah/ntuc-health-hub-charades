@@ -312,8 +312,10 @@ export default function Admin() {
                 key={topic.id}
                 className="bg-white p-6 py-8 rounded-lg border border-gray justify-center items-center"
               >
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-semibold">{topic.name}</h3>
+                <div className="flex flex-col md:flex-row justify-between items-center">
+                  <h3 className="text-xl font-semibold md:pb-0 pb-4">
+                    {topic.name}
+                  </h3>
                   <div className="flex gap-4">
                     <Button
                       onClick={() => toggleTopic(topic.id)}
@@ -511,7 +513,7 @@ export default function Admin() {
       )}
       {editingTopic !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center min-w-[500px]">
+          <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center w-full max-w-[700px] mx-4">
             <h3 className="text-2xl font-semibold">Edit Topic / Decks</h3>
             <Input
               value={editingTopic.name}
