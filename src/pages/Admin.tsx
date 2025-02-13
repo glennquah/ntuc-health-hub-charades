@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Edit, Loader2, Plus, Trash2 } from 'lucide-react'
+import { Edit, EditIcon, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from './../../public/ntuchealth.svg'
@@ -23,6 +23,13 @@ export default function Admin() {
   const [editingTranslations, setEditingTranslations] = useState<
     Record<string, string>
   >({})
+  // New state for editing topic
+  const [editingTopic, setEditingTopic] = useState<{
+    id: number
+    name: string
+    description: string
+    instructions: string
+  } | null>(null)
 
   const queryClient = useQueryClient()
   const languages = ['English', 'Chinese', 'Hokkien', 'Cantonese']
@@ -63,6 +70,35 @@ export default function Admin() {
       toast({
         title: 'Success',
         description: 'Topic added successfully',
+      })
+    },
+  })
+
+  const editTopicMutation = useMutation({
+    mutationFn: async ({
+      id,
+      name,
+      description,
+      instructions,
+    }: {
+      id: number
+      name: string
+      description: string
+      instructions: string
+    }) => {
+      const { data, error } = await supabase
+        .from('topics')
+        .update({ name, description, instructions })
+        .eq('id', id)
+        .select()
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['topics'] })
+      toast({
+        title: 'Success',
+        description: 'Topic updated successfully',
       })
     },
   })
@@ -290,6 +326,21 @@ export default function Admin() {
                     <Button
                       variant="outline"
                       size="icon"
+                      onClick={() =>
+                        setEditingTopic({
+                          id: topic.id,
+                          name: topic.name,
+                          description: topic.description,
+                          instructions: topic.instructions,
+                        })
+                      }
+                      className="text-lg p-2 border border-black bg-green-700 text-white"
+                    >
+                      <EditIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
                       onClick={() => setShowDeleteDialog(topic.id)}
                       className="text-lg p-2 border border-black bg-red-500 text-white"
                     >
@@ -450,6 +501,72 @@ export default function Admin() {
                   setEditingWordId(null)
                   setEditingTranslations({})
                 }}
+                className="bg-gray-300 px-6 py-2"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {editingTopic !== null && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center min-w-[500px]">
+            <h3 className="text-2xl font-semibold">Edit Topic / Decks</h3>
+            <Input
+              value={editingTopic.name}
+              onChange={(e) =>
+                setEditingTopic((prev) =>
+                  prev ? { ...prev, name: e.target.value } : prev
+                )
+              }
+              placeholder="Topic Name"
+              className="w-full"
+            />
+            <Textarea
+              value={editingTopic.description}
+              onChange={(e) =>
+                setEditingTopic((prev) =>
+                  prev ? { ...prev, description: e.target.value } : prev
+                )
+              }
+              placeholder="Topic Description"
+              className="w-full h-32"
+            />
+            <Textarea
+              value={editingTopic.instructions}
+              onChange={(e) =>
+                setEditingTopic((prev) =>
+                  prev ? { ...prev, instructions: e.target.value } : prev
+                )
+              }
+              placeholder="Topic Instructions"
+              className="w-full h-32"
+            />
+            <div className="flex justify-center gap-4 mt-4">
+              <Button
+                onClick={() => {
+                  if (editingTopic) {
+                    editTopicMutation.mutate({
+                      id: editingTopic.id,
+                      name: editingTopic.name,
+                      description: editingTopic.description,
+                      instructions: editingTopic.instructions,
+                    })
+                    setEditingTopic(null)
+                  }
+                }}
+                className="bg-blue-500 text-white px-6 py-2"
+                disabled={editTopicMutation.isPending}
+              >
+                {editTopicMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  'Save'
+                )}
+              </Button>
+              <Button
+                onClick={() => setEditingTopic(null)}
                 className="bg-gray-300 px-6 py-2"
               >
                 Cancel
