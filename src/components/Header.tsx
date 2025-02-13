@@ -7,7 +7,7 @@ const Header = () => {
         <img src={logo} alt="Lai Lai Guess Guess!" width={250} height={250} />
       </div>
       <h1 className="text-4xl md:text-6xl font-bold text-center text-coffee-dark mb-4">
-        Kampong Klash!
+        Jamboree
       </h1>
       <p className="text-xl text-center text-coffee-dark mb-8">
         Your multi-lingual charades game inspired by Singapore’s vibrant

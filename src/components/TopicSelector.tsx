@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button'
 import { supabase } from '@/integrations/supabase/client'
 import { Topic } from '@/types/game'
 import { useQuery } from '@tanstack/react-query'
@@ -59,7 +58,10 @@ export function TopicSelector({
                 ? 'bg-blue-200 border-blue-500'
                 : 'hover:bg-cream/50'
             }`}
-            onClick={() => onSelectTopic(topic.name)}
+            onClick={() => {
+              onSelectTopic(topic.name)
+              if (onNext) onNext()
+            }}
             whileHover={{ scale: 1.02 }}
           >
             <h3 className="text-xl font-semibold text-center">{topic.name}</h3>
@@ -67,19 +69,6 @@ export function TopicSelector({
           </motion.div>
         ))}
       </div>
-
-      {onNext && (
-        <div className="flex justify-center mt-8">
-          <Button
-            onClick={onNext}
-            disabled={!selectedTopic}
-            className="text-lg px-12 py-4"
-            variant="outline"
-          >
-            Next
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

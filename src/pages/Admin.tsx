@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dashboards } from '@/components/Dashboards'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -5,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2, Plus, Trash2 } from 'lucide-react'
+import { Edit, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from './../../public/ntuchealth.svg'
@@ -18,6 +19,10 @@ export default function Admin() {
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null)
   const [expandedTopics, setExpandedTopics] = useState<number[]>([])
   const [showDeleteDialog, setShowDeleteDialog] = useState<number | null>(null)
+  const [editingWordId, setEditingWordId] = useState<number | null>(null)
+  const [editingTranslations, setEditingTranslations] = useState<
+    Record<string, string>
+  >({})
 
   const queryClient = useQueryClient()
   const languages = ['English', 'Chinese', 'Hokkien', 'Cantonese']
@@ -95,6 +100,34 @@ export default function Admin() {
     },
   })
 
+  const updateWordMutation = useMutation({
+    mutationFn: async ({
+      id,
+      translations,
+    }: {
+      id: number
+      translations: Record<string, string>
+    }) => {
+      if (Object.keys(translations).length === 0) {
+        throw new Error('At least one translation is required')
+      }
+      const { data, error } = await supabase
+        .from('words')
+        .update({ translations })
+        .eq('id', id)
+        .select()
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['topics'] })
+      toast({
+        title: 'Success',
+        description: 'Word updated successfully',
+      })
+    },
+  })
+
   const addWordMutation = useMutation({
     mutationFn: async ({
       topicId,
@@ -103,11 +136,9 @@ export default function Admin() {
       topicId: number
       translations: Record<string, string>
     }) => {
-      // Validate at least one translation
       if (Object.keys(translations).length === 0) {
         throw new Error('At least one translation is required')
       }
-
       const { data, error } = await supabase
         .from('words')
         .insert([{ topic_id: topicId, translations }])
@@ -162,6 +193,19 @@ export default function Admin() {
     )
   }
 
+  const openEditDialog = (wordId: number) => {
+    if (!topics) return
+    let wordFound: any = null
+    topics.forEach((topic: any) => {
+      const found = topic.words?.find((w: any) => w.id === wordId)
+      if (found) wordFound = found
+    })
+    if (wordFound) {
+      setEditingWordId(wordId)
+      setEditingTranslations(wordFound.translations)
+    }
+  }
+
   if (topicsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -187,7 +231,6 @@ export default function Admin() {
           </div>
           <h1 className="text-4xl font-bold text-center mb-4">Admin Panel</h1>
 
-          {/* Add Topic Form */}
           <div className="py-6">
             <h2 className="text-2xl font-semibold mb-4">Add New Deck</h2>
             <form onSubmit={handleAddTopic} className="space-y-4">
@@ -227,9 +270,8 @@ export default function Admin() {
 
           <hr className="border-t border-black py-2" />
 
-          {/* Topics and Words List */}
           <div className="space-y-6">
-            {topics?.map((topic) => (
+            {topics?.map((topic: any) => (
               <div
                 key={topic.id}
                 className="bg-white p-6 py-8 rounded-lg border border-gray justify-center items-center"
@@ -264,7 +306,6 @@ export default function Admin() {
                     <div className="text-sm">
                       Instructions: {topic.instructions}
                     </div>
-                    {/* Add Word Form */}
                     <div className="bg-white p-4 py-6 rounded-lg border border-gray">
                       <h4 className="font-semibold mb-2">Add New Word</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -297,23 +338,30 @@ export default function Admin() {
                       </Button>
                     </div>
 
-                    {/* Words List */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {topic.words?.map((word) => (
+                      {topic.words?.map((word: any) => (
                         <div
                           key={word.id}
-                          className="bg-white p-4  border border-gray rounded group relative"
+                          className="bg-white p-4 border border-gray rounded group relative"
                         >
                           <Button
                             variant="destructive"
                             size="icon"
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-8"
+                            onClick={() => openEditDialog(word.id)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2"
                             onClick={() => deleteWordMutation.mutate(word.id)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                           {Object.entries(word.translations).map(
-                            ([lang, translation]) => (
+                            ([lang, translation]: [string, string]) => (
                               <div key={lang} className="text-sm mt-4">
                                 <span className="font-semibold">{lang}:</span>{' '}
                                 {translation}
@@ -335,7 +383,6 @@ export default function Admin() {
           </div>
         </div>
       </div>
-      {/* Delete Confirmation Dialog */}
       {showDeleteDialog !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center">
@@ -350,6 +397,59 @@ export default function Admin() {
               </Button>
               <Button
                 onClick={() => setShowDeleteDialog(null)}
+                className="bg-gray-300 px-6 py-2"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {editingWordId !== null && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center">
+            <h3 className="text-2xl font-semibold">Edit Word</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {languages.map((lang) => (
+                <Input
+                  key={lang}
+                  value={editingTranslations[lang] || ''}
+                  onChange={(e) =>
+                    setEditingTranslations((prev) => ({
+                      ...prev,
+                      [lang]: e.target.value,
+                    }))
+                  }
+                  placeholder={`${lang} translation`}
+                />
+              ))}
+            </div>
+            <div className="flex justify-center gap-4 mt-4">
+              <Button
+                onClick={() => {
+                  if (editingWordId) {
+                    updateWordMutation.mutate({
+                      id: editingWordId,
+                      translations: editingTranslations,
+                    })
+                    setEditingWordId(null)
+                    setEditingTranslations({})
+                  }
+                }}
+                className="bg-blue-500 text-white px-6 py-2"
+                disabled={updateWordMutation.isPending}
+              >
+                {updateWordMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  'Save'
+                )}
+              </Button>
+              <Button
+                onClick={() => {
+                  setEditingWordId(null)
+                  setEditingTranslations({})
+                }}
                 className="bg-gray-300 px-6 py-2"
               >
                 Cancel
