@@ -84,7 +84,7 @@ export default function Leaderboard() {
             } hover:bg-gray-50 transition-colors`}
           >
             <div className="flex items-center gap-6">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-cream">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full">
                 {getRankIcon(index)}
               </div>
               <div>
@@ -107,7 +107,7 @@ export default function Leaderboard() {
   )
 
   return (
-    <div className="min-h-screen bg-cream py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Overall Leaderboard */}
         <div className="text-center mb-6">
