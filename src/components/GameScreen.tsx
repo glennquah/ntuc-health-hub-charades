@@ -53,7 +53,7 @@ export function GameScreen({
 
   return (
     <div className="flex items-center justify-center">
-      <div className="space-y-8 text-center max-w-3xl w-full px-4">
+      <div className="space-y-8 text-center max-w-4xl w-full px-4">
         <div className="w-full h-4 bg-gray-300 rounded-full mb-4">
           <div
             className="h-full bg-blue-500 rounded-full"
@@ -74,13 +74,24 @@ export function GameScreen({
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="space-y-4 pb-8"
+            className="flex justify-center items-center w-full"
           >
-            <div className="space-y-4">
+            {/* FIXED WIDTH FOR DIFFERENT DEVICES */}
+            <div
+              className="
+            w-[350px] sm:w-[500px] md:w-[700px] lg:w-[900px] xl:w-[1100px]
+            min-h-[18rem] md:min-h-[20rem] lg:min-h-[22rem]
+            flex flex-col justify-center items-center text-center"
+            >
               {selectedLanguages.map(
                 (lang) =>
                   word.translations[lang] && (
-                    <div key={lang} className="text-5xl font-bold">
+                    <div
+                      key={lang}
+                      className="
+                text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-6xl 
+                font-bold w-full truncate px-6 py-4"
+                    >
                       {word.translations[lang]}
                     </div>
                   )
@@ -89,17 +100,17 @@ export function GameScreen({
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex justify-between gap-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-[900px]">
           <Button
             onClick={handleCorrect}
-            className="h-14 w-48 text-lg bg-green-600 hover:bg-green-700  border-2"
+            className="h-14 w-full sm:w-1/2 text-lg bg-green-600 hover:bg-green-700 border-2 flex items-center justify-center"
           >
             Correct
             <Check className="ml-2" />
           </Button>
           <Button
             onClick={handlePass}
-            className="h-14 w-48 text-lg text-white bg-red-600 hover:bg-red-700 border-2"
+            className="h-14 w-full sm:w-1/2 text-lg text-white bg-red-600 hover:bg-red-700 border-2 flex items-center justify-center"
           >
             Skip
             <X className="ml-2" />
@@ -114,7 +125,7 @@ export function GameScreen({
               exit={{ scale: 2, opacity: 0 }}
               className="fixed inset-0 flex items-center justify-center pointer-events-none"
             >
-              <Check className="w-24 h-24 text-green-500" />
+              <Check className="w-48 h-48 text-green-500" />
             </motion.div>
           )}
           {showPassAnimation && (
@@ -124,7 +135,7 @@ export function GameScreen({
               exit={{ scale: 2, opacity: 0 }}
               className="fixed inset-0 flex items-center justify-center pointer-events-none"
             >
-              <X className="w-24 h-24 text-red-500" />
+              <X className="w-48 h-48 text-red-500" />
             </motion.div>
           )}
         </AnimatePresence>

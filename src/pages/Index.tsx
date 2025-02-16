@@ -161,8 +161,8 @@ export default function Index() {
   }, [gameState?.isPlaying, gameState?.timeLeft])
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      <main className="flex-1 flex flex-col items-center justify-center p-4">
+    <div>
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -242,11 +242,7 @@ export default function Index() {
             </motion.div>
           )}
         </motion.div>
-      </main>
-      <p className="text-md text-center text-gray-500 pb-4">
-        Designed by duobytes.co | Glenn Quah © 2025 for NTUC Health Hub. All
-        rights reserved.
-      </p>
+      </div>
     </div>
   )
 }
