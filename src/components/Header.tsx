@@ -1,4 +1,4 @@
-import logo from '../../public/Jamboreeicon.svg'
+import logo from '../../public/icons.svg'
 
 const Header = () => {
   return (
