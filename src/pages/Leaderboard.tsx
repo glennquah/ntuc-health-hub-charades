@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { motion } from 'framer-motion'
 import { Loader2, Medal, Star, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import logo from '../../public/JamboreeIcon.svg'
+import logo from '../../public/Jamboreeicon.svg'
 
 export default function Leaderboard() {
   // Fetch overall leaderboard data

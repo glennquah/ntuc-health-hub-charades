@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Edit, EditIcon, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../../public/JamboreeIcon.svg'
+import logo from '../../public/Jamboreeicon.svg'
 
 export default function Admin() {
   const [newTopic, setNewTopic] = useState('')
