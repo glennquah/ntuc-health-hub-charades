@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Edit, EditIcon, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import logo from './../../public/ntuchealth.svg'
+import logo from '../../public/JamboreeIcon.svg'
 
 export default function Admin() {
   const [newTopic, setNewTopic] = useState('')
@@ -254,7 +254,7 @@ export default function Admin() {
     <div className="bg-cream min-h-screen flex flex-col px-8">
       <div className="py-12 flex flex-col items-center justify-center">
         <div className="w-full max-w-5xl">
-          <div className="flex flex-col items-center justify-center py-2">
+          <div className="flex flex-col items-center justify-center py-4">
             <Link to="/">
               <img
                 src={logo}

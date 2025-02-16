@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { motion } from 'framer-motion'
 import { Loader2, Medal, Star, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import logo from './../../public/ntuchealth.svg'
+import logo from '../../public/JamboreeIcon.svg'
 
 export default function Leaderboard() {
   // Fetch overall leaderboard data
@@ -111,7 +111,7 @@ export default function Leaderboard() {
       <div className="max-w-4xl mx-auto">
         {/* Overall Leaderboard */}
         <div className="text-center mb-6">
-          <div className="flex flex-col items-center justify-center py-2">
+          <div className="flex flex-col items-center justify-center py-4">
             <Link to="/">
               <img
                 src={logo}
