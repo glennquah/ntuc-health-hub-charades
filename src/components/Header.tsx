@@ -1,14 +1,14 @@
-import logo from './../../public/ntuchealth.svg'
+import logo from './../../public/jamboreeIcon.svg'
 
 const Header = () => {
   return (
     <div>
-      <div className="flex flex-col items-center justify-center py-6">
-        <img src={logo} alt="Lai Lai Guess Guess!" width={250} height={250} />
+      <div className="flex flex-col items-center justify-center py-8">
+        <img src={logo} alt="Lai Lai Guess Guess!" width={400} height={200} />
       </div>
-      <h1 className="text-4xl md:text-6xl font-bold text-center text-coffee-dark mb-4">
-        Jamboree
-      </h1>
+      <p className="text-xl text-center text-coffee-dark mb-2">
+        Where action speaks louder than words!
+      </p>
       <p className="text-xl text-center text-coffee-dark mb-8">
         Your multi-lingual charades game inspired by Singapore’s vibrant
         culture!
