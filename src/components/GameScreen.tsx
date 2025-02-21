@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import CustomButton from './CustomButton'
 
 interface GameScreenProps {
   word: {
@@ -101,20 +101,18 @@ export function GameScreen({
         </AnimatePresence>
 
         <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-[900px]">
-          <Button
+          <CustomButton
+            words="Correct"
             onClick={handleCorrect}
-            className="h-14 w-full sm:w-1/2 text-lg bg-green-600 hover:bg-green-700 border-2 flex items-center justify-center"
-          >
-            Correct
-            <Check className="ml-2" />
-          </Button>
-          <Button
+            stretch={true}
+            color="bg-green-500"
+          />
+          <CustomButton
+            words="Skip"
             onClick={handlePass}
-            className="h-14 w-full sm:w-1/2 text-lg text-white bg-red-600 hover:bg-red-700 border-2 flex items-center justify-center"
-          >
-            Skip
-            <X className="ml-2" />
-          </Button>
+            stretch={true}
+            color="bg-red-500"
+          />
         </div>
 
         <AnimatePresence>
