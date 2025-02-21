@@ -310,7 +310,7 @@ export default function Admin() {
             {topics?.map((topic: any) => (
               <div
                 key={topic.id}
-                className="bg-white p-6 py-8 rounded-lg border border-gray justify-center items-center"
+                className="bg-white p-6 py-8 rounded-lg border border-gray w-full"
               >
                 <div className="flex flex-col md:flex-row justify-between items-center">
                   <h3 className="text-xl font-semibold md:pb-0 pb-4">

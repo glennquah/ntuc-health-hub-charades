@@ -99,15 +99,13 @@
     @apply bg-background text-foreground;
   }
 
+  body {
+    font-family: 'Libre Franklin', sans-serif;
+  }
+
   h1,
   h2,
   h3 {
-    font-family: 'Merriweather', serif;
-    font-weight: 700;
-  }
-
-  p {
-    font-family: 'Merriweather', serif;
-    font-weight: 400;
+    font-family: 'Oswald', sans-serif;
   }
 }
