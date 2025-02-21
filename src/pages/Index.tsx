@@ -24,6 +24,15 @@ export default function Index() {
               height={200}
             />
             <CustomButton words={'Play Now'} route={'/game'} />
+            <div className="text-md text-center text-gray-500 pb-4">
+              View our champions at our
+              <a
+                href="/leaderboard"
+                className="ml-2 text-blue-500 underline hover:text-blue-700 transition-colors"
+              >
+                Leaderboard
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>
