@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
 import { supabase } from '@/integrations/supabase/client'
-import { GameSettings, GameState, Language, Topic, Word } from '@/types/game'
+import { GameSettings, GameState, Language, Word } from '@/types/game'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -17,6 +17,7 @@ export default function Game() {
   const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({
     languages: [],
     topic: '',
+    timer: 0,
   })
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [step, setStep] = useState<'language' | 'topics' | 'game' | 'results'>(
@@ -25,6 +26,11 @@ export default function Game() {
   const [playerName, setPlayerName] = useState('')
   const [usedWordIds, setUsedWordIds] = useState<Array<string | number>>([])
 
+  const handleTopicSelect = (topic: string) => {
+    setGameSettings((prev) => ({ ...prev, topic }))
+  }
+
+  // Get words from supabase
   const { data: words } = useQuery({
     queryKey: ['words', gameSettings.topic],
     enabled: !!gameSettings.topic,
@@ -46,6 +52,7 @@ export default function Game() {
     },
   })
 
+  // Submit score to supabase
   const submitScoreMutation = useMutation({
     mutationFn: async ({ name, score }: { name: string; score: number }) => {
       const { data, error } = await supabase
@@ -64,6 +71,7 @@ export default function Game() {
     },
   })
 
+  // Toggle language
   const handleLanguageToggle = (language: Language) => {
     setGameSettings((prev) => ({
       ...prev,
@@ -73,11 +81,7 @@ export default function Game() {
     }))
   }
 
-  const handleTopicSelect = (topic: Topic) => {
-    setGameSettings((prev) => ({ ...prev, topic }))
-  }
-
-  // This function picks a random word from the available ones and updates the used list.
+  // Get random word from the available list
   const getAndStoreRandomWord = (): Word | null => {
     if (!words || words.length === 0) return null
     const availableWords = words.filter(
@@ -90,20 +94,14 @@ export default function Game() {
     return word
   }
 
+  // Select the timer
   const handleTimerSelect = (timer: number) => {
     setGameSettings((prev) => ({ ...prev, timer }))
-    setUsedWordIds([]) // Reset used words for new game
-    const firstWord = getAndStoreRandomWord()
-    setStep('game')
-    setGameState({
-      score: 0,
-      currentWord: firstWord,
-      timeLeft: timer,
-      isPlaying: true,
-    })
   }
 
+  // Start the game
   const startGame = () => {
+    // Clear out used words and set the first word
     setUsedWordIds([])
     const firstWord = getAndStoreRandomWord()
     setGameState({
@@ -114,6 +112,13 @@ export default function Game() {
     })
   }
 
+  // Called when user clicks "Continue" on the topics step
+  const goToGame = () => {
+    startGame()
+    setStep('game')
+  }
+
+  // If user guesses correctly
   const handleCorrect = () => {
     const newWord = getAndStoreRandomWord()
     if (newWord) {
@@ -121,6 +126,7 @@ export default function Game() {
         prev ? { ...prev, score: prev.score + 1, currentWord: newWord } : null
       )
     } else {
+      // No more words
       setGameState((prev) =>
         prev ? { ...prev, score: prev.score + 1, currentWord: null } : null
       )
@@ -128,6 +134,7 @@ export default function Game() {
     }
   }
 
+  // If user passes
   const handlePass = () => {
     const newWord = getAndStoreRandomWord()
     if (newWord) {
@@ -138,6 +145,7 @@ export default function Game() {
     }
   }
 
+  // Submit score
   const handleSubmitScore = (e: React.FormEvent) => {
     e.preventDefault()
     if (!gameState || !playerName.trim()) return
@@ -147,6 +155,7 @@ export default function Game() {
     })
   }
 
+  // Countdown
   useEffect(() => {
     let timer: NodeJS.Timeout
     if (gameState?.isPlaying && gameState.timeLeft > 0) {
@@ -189,10 +198,10 @@ export default function Game() {
           {step === 'topics' && (
             <TopicSelector
               selectedTopic={gameSettings.topic || ''}
-              selectedTime={gameSettings.timer || 60}
-              onSelect={handleTimerSelect}
-              onSelectTopic={handleTopicSelect}
-              onNext={() => setStep('game')}
+              selectedTime={gameSettings.timer || 0}
+              onTimeSelect={handleTimerSelect}
+              onTopicSelect={handleTopicSelect}
+              onNext={goToGame}
             />
           )}
 

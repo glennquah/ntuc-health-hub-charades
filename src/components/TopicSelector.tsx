@@ -9,9 +9,9 @@ import { Button } from './ui/button'
 
 interface TopicSelectorProps {
   selectedTopic: Topic | null
-  onSelectTopic: (topic: Topic) => void
   selectedTime: number
-  onSelect: (time: number) => void
+  onTimeSelect: (time: number) => void
+  onTopicSelect: (topic: Topic) => void
   onNext?: () => void
 }
 
@@ -19,9 +19,9 @@ const times = [60, 120, 180, 240]
 
 export function TopicSelector({
   selectedTopic,
-  onSelectTopic,
   selectedTime,
-  onSelect,
+  onTimeSelect,
+  onTopicSelect,
   onNext,
 }: TopicSelectorProps) {
   const { data: topics, isLoading } = useQuery({
@@ -35,6 +35,7 @@ export function TopicSelector({
     },
   })
 
+  // Not strictly necessary, but in case you need topic details:
   const { data: topicDetails } = useQuery({
     queryKey: ['topicDetails', selectedTopic],
     queryFn: async () => {
@@ -68,7 +69,6 @@ export function TopicSelector({
     )
   }
 
-  // Add the "Rojak" deck manually
   const allTopics = [
     ...topics,
     {
@@ -90,9 +90,14 @@ export function TopicSelector({
         {times.map((time) => (
           <Button
             key={time}
-            onClick={() => onSelect(time)}
+            onClick={() => onTimeSelect(time)}
             variant="outline"
-            className={cn('h-12 w-32 text-lg border-2', selectedTime === time)}
+            className={cn(
+              'h-12 w-32 text-lg border-2',
+              selectedTime === time
+                ? 'bg-blue-500 text-white border-blue-500'
+                : 'bg-white text-black border-gray-300'
+            )}
           >
             {time / 60} min
           </Button>
@@ -105,27 +110,26 @@ export function TopicSelector({
       >
         Select A Deck
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {allTopics.map((topic) => (
           <motion.div
             key={topic.id}
-            className={`p-6 border-2 rounded-lg cursor-pointer space-y-2 shadow-lg transition-all ${
-              selectedTopic === topic.name
-                ? 'bg-blue-200 border-blue-500'
-                : 'hover:bg-cream/50'
-            }`}
-            onClick={() => {
-              onSelectTopic(topic.name)
-            }}
+            onClick={() => onTopicSelect(topic.name)}
             whileHover={{ scale: 1.02 }}
+            className={`px-8 py-3 rounded-full cursor-pointer text-center shadow-lg transition-all ${
+              selectedTopic === topic.name
+                ? 'bg-red-500 text-white border-red-500'
+                : 'bg-white text-red-500'
+            }`}
           >
-            <h3 className="text-xl font-semibold text-center">{topic.name}</h3>
+            <p className="text-lg font-semibold">{topic.name}</p>
           </motion.div>
         ))}
       </div>
-      <div className="flex justify-center mt-8">
+
+      <div className="flex justify-center pt-8">
         <CustomButton
-          words={'Continue'}
+          words="Continue"
           onClick={onNext}
           disabled={!selectedTime || !selectedTopic}
         />
