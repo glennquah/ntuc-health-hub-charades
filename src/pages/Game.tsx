@@ -10,6 +10,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import endIcon from '../../public/endicon.svg'
 import logo from '../../public/icons.svg'
 
 export default function Game() {
@@ -224,9 +225,17 @@ export default function Game() {
               animate={{ scale: 1, opacity: 1 }}
               className="text-center space-y-6"
             >
-              <h2 className="text-3xl font-bold text-coffee-dark">
+              <div className="flex flex-col items-center justify-center">
+                <img
+                  src={endIcon}
+                  alt="Lai Lai Guess Guess!"
+                  width={200}
+                  height={200}
+                />
+              </div>
+              <p className="text-3xl font-bold" style={{ color: '#40C0DF' }}>
                 Game Over!
-              </h2>
+              </p>
               <p className="text-2xl">Your Score: {gameState.score}</p>
 
               <form onSubmit={handleSubmitScore} className="space-y-4">
@@ -235,7 +244,7 @@ export default function Game() {
                   placeholder="Enter your name"
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
-                  className="max-w-xs mx-auto py-6 px-4"
+                  className="max-w-xs mx-auto py-6 px-4 rounded-2xl bg-transparent border-2 border-gray-500"
                 />
                 <div className="space-x-4 py-4">
                   <Button
@@ -243,8 +252,14 @@ export default function Game() {
                     disabled={
                       !playerName.trim() || submitScoreMutation.isPending
                     }
-                    className="text-lg px-12 py-4"
-                    variant="outline"
+                    className={`
+                      bg-yellow-500 text-white font-bold py-3 px-24 rounded-full text-lg shadow-md transition-opacity
+                      ${
+                        !playerName.trim() || submitScoreMutation.isPending
+                          ? 'cursor-not-allowed opacity-50 opacity-50'
+                          : 'hover:opacity-80'
+                      }
+                    `}
                   >
                     Submit Score
                   </Button>
