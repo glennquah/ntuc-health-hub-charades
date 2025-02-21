@@ -1,6 +1,5 @@
 import { GameScreen } from '@/components/GameScreen'
 import { LanguageSelector } from '@/components/LanguageSelector'
-import { TimerSelector } from '@/components/TimerSelector'
 import { TopicSelector } from '@/components/TopicSelector'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,9 +19,9 @@ export default function Game() {
     topic: '',
   })
   const [gameState, setGameState] = useState<GameState | null>(null)
-  const [step, setStep] = useState<
-    'language' | 'topics' | 'timer' | 'game' | 'results'
-  >('language')
+  const [step, setStep] = useState<'language' | 'topics' | 'game' | 'results'>(
+    'language'
+  )
   const [playerName, setPlayerName] = useState('')
   const [usedWordIds, setUsedWordIds] = useState<Array<string | number>>([])
 
@@ -190,16 +189,10 @@ export default function Game() {
           {step === 'topics' && (
             <TopicSelector
               selectedTopic={gameSettings.topic || ''}
-              onSelectTopic={handleTopicSelect}
-              onNext={() => setStep('timer')}
-            />
-          )}
-
-          {step === 'timer' && (
-            <TimerSelector
               selectedTime={gameSettings.timer || 60}
               onSelect={handleTimerSelect}
-              selectedTopic={gameSettings.topic || ''}
+              onSelectTopic={handleTopicSelect}
+              onNext={() => setStep('game')}
             />
           )}
 

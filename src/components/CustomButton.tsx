@@ -6,6 +6,7 @@ interface CustomButtonProps {
   words: string
   route?: string
   onClick?: () => void
+  disabled?: boolean
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -13,18 +14,23 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   words,
   route,
   onClick,
+  disabled,
 }) => {
   const navigate = useNavigate()
 
   const handleClick = () => {
-    if (onClick) onClick()
-    if (route) navigate(route)
+    if (!disabled) {
+      if (onClick) onClick()
+      if (route) navigate(route)
+    }
   }
 
   return (
     <button
       onClick={handleClick}
-      className={` ${color} text-white font-bold py-3 px-24 rounded-full text-lg shadow-md hover:opacity-80 transition-opacity`}
+      disabled={disabled}
+      className={` ${color} text-white font-bold py-3 px-24 rounded-full text-lg shadow-md transition-opacity 
+        ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:opacity-80'}`}
     >
       {words}
     </button>

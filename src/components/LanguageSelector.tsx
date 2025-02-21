@@ -40,7 +40,11 @@ export function LanguageSelector({
         ))}
       </div>
       <div className="flex justify-center mt-8">
-        <CustomButton words={'Continue'} onClick={onNext} />
+        <CustomButton
+          words="Continue"
+          onClick={onNext}
+          disabled={selectedLanguages.length === 0}
+        />
       </div>
     </div>
   )
