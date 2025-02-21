@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import CustomButton from './CustomButton'
 
 interface GameScreenProps {
   word: {
@@ -61,11 +61,13 @@ export function GameScreen({
           ></div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-3xl font-bold">
+          <div className="text-3xl font-bold" style={{ color: 'red' }}>
             {Math.floor(timeLeft / 60)}:
             {(timeLeft % 60).toString().padStart(2, '0')}
           </div>
-          <div className="text-3xl font-bold">Score: {score}</div>
+          <div className="text-3xl font-bold" style={{ color: '#40C0DF' }}>
+            Score: {score}
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -74,7 +76,7 @@ export function GameScreen({
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="flex justify-center items-center w-full"
+            className="flex justify-center items-center w-full bg-white rounded-xl"
           >
             {/* FIXED WIDTH FOR DIFFERENT DEVICES */}
             <div
@@ -100,21 +102,19 @@ export function GameScreen({
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-[900px]">
-          <Button
+        <div className="pt-4 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-[900px]">
+          <CustomButton
+            words="Correct"
             onClick={handleCorrect}
-            className="h-14 w-full sm:w-1/2 text-lg bg-green-600 hover:bg-green-700 border-2 flex items-center justify-center"
-          >
-            Correct
-            <Check className="ml-2" />
-          </Button>
-          <Button
+            stretch={true}
+            color="bg-green-500"
+          />
+          <CustomButton
+            words="Skip"
             onClick={handlePass}
-            className="h-14 w-full sm:w-1/2 text-lg text-white bg-red-600 hover:bg-red-700 border-2 flex items-center justify-center"
-          >
-            Skip
-            <X className="ml-2" />
-          </Button>
+            stretch={true}
+            color="bg-red-500"
+          />
         </div>
 
         <AnimatePresence>

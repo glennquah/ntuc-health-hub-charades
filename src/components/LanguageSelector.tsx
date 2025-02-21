@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Language } from '@/types/game'
+import CustomButton from './CustomButton'
 
 interface LanguageSelectorProps {
   selectedLanguages: Language[]
@@ -16,48 +15,36 @@ export function LanguageSelector({
   onNext,
 }: LanguageSelectorProps) {
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-coffee-dark text-center">
-        选择语言 | Select Language(s)
-      </h2>
+    <div className="space-y-8">
+      <p
+        className="text-2xl text-center mb-8 font-bold"
+        style={{ color: '#40C0DF' }}
+      >
+        Select Language(s)
+      </p>
       <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
         {languages.map((lang) => (
           <div
             key={lang}
-            className="flex items-center space-x-3 border-2 rounded-lg p-4 hover:bg-coffee/5 transition-colors"
+            className={`flex items-center justify-center rounded-full p-4 transition-colors cursor-pointer ${
+              selectedLanguages.includes(lang)
+                ? 'bg-[#40C0DF] text-white border-blue-500'
+                : 'bg-white text-black border-gray-300'
+            }`}
+            onClick={() => onToggleLanguage(lang)}
           >
-            <Checkbox
-              id={lang}
-              checked={selectedLanguages.includes(lang)}
-              onCheckedChange={() => onToggleLanguage(lang)}
-            />
-            <label
-              htmlFor={lang}
-              className="text-lg font-medium leading-none cursor-pointer"
-            >
+            <span className="px-12 text-lg font-medium leading-none">
               {lang}
-            </label>
+            </span>
           </div>
         ))}
       </div>
       <div className="flex justify-center mt-8">
-        <Button
+        <CustomButton
+          words="Continue"
           onClick={onNext}
           disabled={selectedLanguages.length === 0}
-          className="text-lg px-12 py-4"
-          variant="outline"
-        >
-          Next
-        </Button>
-      </div>
-      <div className="text-md text-center text-gray-500 pb-4">
-        View our champions at our
-        <a
-          href="/leaderboard"
-          className="ml-2 text-blue-500 underline hover:text-blue-700 transition-colors"
-        >
-          Leaderboard
-        </a>
+        />
       </div>
     </div>
   )

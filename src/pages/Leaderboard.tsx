@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { motion } from 'framer-motion'
-import { Loader2, Medal, Star, Trophy } from 'lucide-react'
+import { Loader2, Medal, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import logo from '../../public/icons.svg'
 
@@ -63,46 +63,52 @@ export default function Leaderboard() {
       case 2:
         return <Medal className="w-6 h-6 text-amber-600" />
       default:
-        return <Star className="w-6 h-6 text-coffee-light" />
+        return <p className="text-2xl text-yellow-500 font-bold">#{index}</p>
     }
   }
 
   const renderLeaderboardSection = (scores, title) => (
-    <div className="mb-12">
-      <h2 className="text-3xl font-bold text-coffee-dark text-center mb-6">
+    <div className="py-6">
+      <h2
+        className="text-3xl font-bold text-center mb-6"
+        style={{ color: '#40C0DF' }}
+      >
         {title}
       </h2>
-      <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-        {scores?.map((score, index) => (
-          <motion.div
-            key={score.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={`flex items-center justify-between p-6 ${
-              index !== scores.length - 1 ? 'border-b border-gray-100' : ''
-            } hover:bg-gray-50 transition-colors`}
-          >
-            <div className="flex items-center gap-6">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full">
-                {getRankIcon(index)}
-              </div>
-              <div>
-                <h3 className="font-bold text-xl text-coffee-dark">
-                  {score.name}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {format(new Date(score.created_at), 'MMM d, yyyy')}
-                </p>
-                <p className="text-sm text-coffee-medium">Deck: {score.deck}</p>
-              </div>
+
+      {scores?.map((score, index) => (
+        <motion.div
+          key={score.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+          className="
+            bg-white
+            rounded-xl
+            p-6
+            mb-4
+            flex
+            items-center
+            justify-between
+            hover:bg-gray-50
+            transition-colors
+          "
+        >
+          <div className="flex items-center gap-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full">
+              {getRankIcon(index)}
             </div>
-            <div className="text-3xl font-bold text-coffee-dark">
-              {score.score}
+            <div>
+              <h3 className="font-bold text-xl">{score.name}</h3>
+              <p className="text-sm text-gray-500">
+                {format(new Date(score.created_at), 'MMM d, yyyy')}
+              </p>
+              <p className="text-sm text-coffee-medium">Deck: {score.deck}</p>
             </div>
-          </motion.div>
-        ))}
-      </div>
+          </div>
+          <div className="text-3xl font-bold text-red-500">{score.score}</div>
+        </motion.div>
+      ))}
     </div>
   )
 
@@ -122,13 +128,13 @@ export default function Leaderboard() {
               />
             </Link>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-coffee-dark mb-4 flex items-center justify-center gap-4">
+          <h1
+            className="text-4xl md:text-6xl font-bold mb-4 flex items-center justify-center gap-4"
+            style={{ color: '#40C0DF' }}
+          >
             <Trophy className="w-12 h-12 text-yellow-500" />
             Leaderboard
           </h1>
-          <p className="text-coffee-medium text-lg">
-            Top 10 Overall Players for Kampong Klash
-          </p>
         </div>
         <hr className="border-t border-gray-400 py-2" />
 

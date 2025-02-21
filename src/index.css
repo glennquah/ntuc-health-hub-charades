@@ -99,15 +99,38 @@
     @apply bg-background text-foreground;
   }
 
+  body {
+    font-family: 'Libre Franklin', sans-serif;
+  }
+
   h1,
   h2,
   h3 {
-    font-family: 'Merriweather', serif;
-    font-weight: 700;
+    font-family: 'Libre Franklin', sans-serif;
   }
 
-  p {
-    font-family: 'Merriweather', serif;
-    font-weight: 400;
+  .timer-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 24px;
+    width: 24px;
+    background: #40c0df; /* circle color */
+    border: 2px solid #ffffff; /* optional border around circle */
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  /* Firefox thumb */
+  .timer-range::-moz-range-thumb {
+    height: 24px;
+    width: 24px;
+    background: #40c0df;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  /* Remove default outline in Firefox */
+  .timer-range::-moz-focus-outer {
+    border: 0;
   }
 }
