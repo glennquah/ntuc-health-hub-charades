@@ -61,11 +61,13 @@ export function GameScreen({
           ></div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-3xl font-bold">
+          <div className="text-3xl font-bold" style={{ color: 'red' }}>
             {Math.floor(timeLeft / 60)}:
             {(timeLeft % 60).toString().padStart(2, '0')}
           </div>
-          <div className="text-3xl font-bold">Score: {score}</div>
+          <div className="text-3xl font-bold" style={{ color: '#40C0DF' }}>
+            Score: {score}
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -74,7 +76,7 @@ export function GameScreen({
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="flex justify-center items-center w-full"
+            className="flex justify-center items-center w-full bg-white rounded-xl"
           >
             {/* FIXED WIDTH FOR DIFFERENT DEVICES */}
             <div
@@ -100,7 +102,7 @@ export function GameScreen({
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-[900px]">
+        <div className="pt-4 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-[900px]">
           <CustomButton
             words="Correct"
             onClick={handleCorrect}
