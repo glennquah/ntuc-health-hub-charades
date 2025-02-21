@@ -1,11 +1,10 @@
 import { supabase } from '@/integrations/supabase/client'
-import { cn } from '@/lib/utils'
 import { Topic } from '@/types/game'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import CustomButton from './CustomButton'
-import { Button } from './ui/button'
+import { TimerSlider } from './TimerSlider'
 
 interface TopicSelectorProps {
   selectedTopic: Topic | null
@@ -86,23 +85,7 @@ export function TopicSelector({
         Select Timer
       </p>
 
-      <div className="flex flex-wrap justify-center gap-8 max-w-2xl mx-auto py-2">
-        {times.map((time) => (
-          <Button
-            key={time}
-            onClick={() => onTimeSelect(time)}
-            variant="outline"
-            className={cn(
-              'h-12 w-32 text-lg border-2',
-              selectedTime === time
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'bg-white text-black border-gray-300'
-            )}
-          >
-            {time / 60} min
-          </Button>
-        ))}
-      </div>
+      <TimerSlider selectedTime={selectedTime} onTimeSelect={onTimeSelect} />
 
       <p
         className="text-2xl text-center mb-8 font-bold"
@@ -116,7 +99,7 @@ export function TopicSelector({
             key={topic.id}
             onClick={() => onTopicSelect(topic.name)}
             whileHover={{ scale: 1.02 }}
-            className={`px-8 py-3 rounded-full cursor-pointer text-center shadow-lg transition-all ${
+            className={`px-8 py-3 rounded-full cursor-pointer text-center transition-all ${
               selectedTopic === topic.name
                 ? 'bg-red-500 text-white border-red-500'
                 : 'bg-white text-red-500'
