@@ -1,5 +1,4 @@
 import { GameScreen } from '@/components/GameScreen'
-import Header from '@/components/Header'
 import { LanguageSelector } from '@/components/LanguageSelector'
 import { TimerSelector } from '@/components/TimerSelector'
 import { TopicSelector } from '@/components/TopicSelector'
@@ -12,6 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import logo from '../../public/icons.svg'
 
 export default function Game() {
   const navigate = useNavigate()
@@ -168,7 +168,16 @@ export default function Game() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-4xl w-full"
         >
-          {step !== 'game' && <Header />}
+          {step !== 'game' && (
+            <div className="flex flex-col items-center justify-center py-8">
+              <img
+                src={logo}
+                alt="Lai Lai Guess Guess!"
+                width={400}
+                height={200}
+              />
+            </div>
+          )}
 
           {step === 'language' && (
             <LanguageSelector

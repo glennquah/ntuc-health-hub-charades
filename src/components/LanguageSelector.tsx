@@ -33,7 +33,9 @@ export function LanguageSelector({
             }`}
             onClick={() => onToggleLanguage(lang)}
           >
-            <span className="text-lg font-medium leading-none">{lang}</span>
+            <span className="px-12 text-lg font-medium leading-none">
+              {lang}
+            </span>
           </div>
         ))}
       </div>
