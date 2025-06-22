@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Dashboards } from '@/components/Dashboards'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -313,7 +312,7 @@ export default function Admin() {
                 className="bg-white p-6 py-8 rounded-lg border border-gray w-full"
               >
                 <div className="flex flex-col md:flex-row justify-between items-center">
-                  <h3 className="text-xl font-semibold md:pb-0 pb-4">
+                  <h3 className="text-xl font-semibold md:pb-0 pb-4 pr-16">
                     {topic.name}
                   </h3>
                   <div className="flex gap-4">
@@ -429,11 +428,11 @@ export default function Admin() {
               </div>
             ))}
           </div>
-          <div className="pt-8">
+          {/* <div className="pt-8">
             <hr className="border-t border-black p-2" />
             <p className="text-xl font-semibold">Admin Dashboards</p>
             <Dashboards />
-          </div>
+          </div> */}
         </div>
       </div>
       {showDeleteDialog !== null && (
