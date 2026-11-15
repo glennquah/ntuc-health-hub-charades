@@ -21,7 +21,7 @@ A multilingual charades game inspired by Singapore’s everyday life and culture
 
 ![Results after a round](docs/screenshots/results.png)
 
-Screenshots were captured with Playwright using original sample prompts, without production records or participant information. These show the app interface, rather than photographs of gatherings.
+Screenshots were captured with Playwright against the running game database. They show actual decks and prompts, with no participant names or leaderboard records. These are app screenshots rather than photographs of gatherings.
 
 ## Run locally
 
@@ -54,6 +54,15 @@ Open http://localhost:8080. Without configuration, the app displays setup instru
 The `/admin` dashboard is public and does not require sign-in. Anyone with access can add, edit, or delete shared decks and words. The supplied database policies intentionally allow these operations. Use a separate Supabase project for your own instance and keep backups of event decks.
 
 Use **Add New Deck** to create a deck with its description and instructions. Select **Show Words** on a deck to view its prompts, add translations in English, Chinese, Hokkien, or Cantonese, and use each word's pencil button to adjust translations. The deck's pencil button edits its name, description, and instructions. Delete buttons remove the selected word or deck.
+
+![Public admin portal for managing decks](docs/screenshots/admin.png)
+
+| Browse and add words | Adjust translations |
+| --- | --- |
+| ![Expanded deck with word-management controls](docs/screenshots/admin-words.png) | ![Edit a word in all four languages](docs/screenshots/admin-edit-word.png) |
+
+![Edit a deck's name, description, and instructions](docs/screenshots/admin-edit-deck.png)
+
 
 The migration targets fresh databases. Existing deployments should review their policies separately before adapting this schema.
 
