@@ -187,7 +187,7 @@ export default function Game() {
             <div className="flex flex-col items-center justify-center py-8">
               <img
                 src={logo}
-                alt="Lai Lai Guess Guess!"
+                alt="Jamboree"
                 width={400}
                 height={200}
               />
@@ -234,7 +234,7 @@ export default function Game() {
               <div className="flex flex-col items-center justify-center">
                 <img
                   src={endIcon}
-                  alt="Lai Lai Guess Guess!"
+                  alt="Jamboree"
                   width={200}
                   height={200}
                 />

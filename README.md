@@ -1,4 +1,4 @@
-# Lai Lai Guess Guess!
+# Jamboree
 
 A multilingual charades game inspired by Singapore’s everyday life and culture. Pick your languages, choose a deck, and get everyone guessing together.
 
@@ -6,7 +6,7 @@ A multilingual charades game inspired by Singapore’s everyday life and culture
 
 > **A huge shoutout to the NTUC Health team at Bukit Merah!** Thank you for being part of bringing the game to life and sharing it with seniors in the community.
 
-![The Lai Lai Guess Guess! home screen](docs/screenshots/home.png)
+![The Jamboree home screen](docs/screenshots/home.png)
 
 ## How it works
 
@@ -51,9 +51,9 @@ Open http://localhost:8080. Without configuration, the app displays setup instru
 
 ## Manage decks
 
-The `/admin` page requires a Supabase Auth account with `app_metadata.role` set to `admin`. Create an account and set its app metadata through trusted Supabase administrative tools. Do not use user-editable `user_metadata` for authorization. Sign in again after changing the role.
+The `/admin` dashboard is public and does not require sign-in. Anyone with access can add, edit, or delete shared decks and words. The supplied database policies intentionally allow these operations. Use a separate Supabase project for your own instance and keep backups of event decks.
 
-The migration enforces deck and word permissions with row-level security, independently of the page gate. Public users can read decks and submit scores; only administrators can change decks and words. Existing deployments need a review of their existing policies: adding these policies does not remove older permissive policies.
+The migration targets fresh databases. Existing deployments should review their policies separately before adapting this schema.
 
 Scores are client-submitted and publicly readable. Use nicknames, avoid personal information, and treat the leaderboard as casual event scoring. Public deployments needing abuse prevention should add server-side validation and rate limits.
 
@@ -67,7 +67,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright checks desktop and mobile gameplay, scoring, word exhaustion, and the admin sign-in gate against intercepted sample API responses. It does not validate a live Supabase deployment or its access policies. `npm run screenshots` regenerates README images. The test server supplies fixture credentials and never contacts the original database.
+Playwright checks desktop and mobile gameplay, scoring, word exhaustion, and the public dashboard against intercepted sample API responses. It does not validate a live Supabase deployment or its access policies. `npm run screenshots` regenerates README images. The test server supplies fixture credentials and never contacts the original database.
 
 Built with React, TypeScript, Vite, Tailwind CSS, shadcn/ui, Framer Motion, React Query, and Supabase. Vercel's SPA rewrite is included; other static hosts should rewrite unknown paths to `index.html`.
 

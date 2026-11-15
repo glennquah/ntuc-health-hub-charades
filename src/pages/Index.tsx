@@ -19,7 +19,7 @@ export default function Index() {
           <div className="flex flex-col justify-center items-center gap-8">
             <img
               src={octo}
-              alt="Lai Lai Guess Guess!"
+              alt="Jamboree"
               width={200}
               height={200}
             />

@@ -13,7 +13,7 @@ test('play a full round with sample data', async ({ page }, testInfo) => {
   await page.route('http://127.0.0.1:54321/**', async route => {
     const url = new URL(route.request().url())
     const data = url.pathname.endsWith('/topics')
-      ? (route.request().headers().accept?.includes('object') ? topic : [topic])
+      ? (route.request().headers().accept?.includes('object') ? topic : [{ ...topic, words }])
       : url.pathname.endsWith('/words') ? words : []
     await route.fulfill({ json: data })
   })
@@ -44,6 +44,6 @@ test('play a full round with sample data', async ({ page }, testInfo) => {
   await expect(page.getByText('Your Score: 2')).toBeVisible()
   await screenshot('results')
   await page.goto('/admin')
-  await expect(page.getByRole('heading', { name: 'Administrator sign in' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Admin Panel' })).toBeVisible()
   expect(errors).toEqual([])
 })

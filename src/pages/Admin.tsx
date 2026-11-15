@@ -257,7 +257,7 @@ export default function Admin() {
             <Link to="/">
               <img
                 src={logo}
-                alt="Lai Lai Guess Guess!"
+                alt="Jamboree"
                 width={250}
                 height={250}
                 className="cursor-pointer"

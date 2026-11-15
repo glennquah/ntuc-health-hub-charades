@@ -26,13 +26,12 @@ create policy "Public deck reading" on public.topics for select to anon, authent
 create policy "Public word reading" on public.words for select to anon, authenticated using (true);
 create policy "Public leaderboard reading" on public.leaderboard for select to anon, authenticated using (true);
 create policy "Public score submission" on public.leaderboard for insert to anon, authenticated with check (true);
-create policy "Admin deck management" on public.topics for all to authenticated
-  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
-create policy "Admin word management" on public.words for all to authenticated
-  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+-- The public dashboard intentionally permits anyone to manage the shared decks.
+create policy "Public deck management" on public.topics for all to anon, authenticated
+  using (true) with check (true);
+create policy "Public word management" on public.words for all to anon, authenticated
+  using (true) with check (true);
 grant select on public.topics, public.words, public.leaderboard to anon, authenticated;
 grant insert on public.leaderboard to anon, authenticated;
-grant insert, update, delete on public.topics, public.words to authenticated;
+grant insert, update, delete on public.topics, public.words to anon, authenticated;
 grant usage, select on all sequences in schema public to anon, authenticated;
