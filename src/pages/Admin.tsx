@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Edit, EditIcon, Loader2, Plus, Trash2 } from 'lucide-react'
+import { Edit, EditIcon, Loader2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 const logo = '/icons.svg'
@@ -17,7 +17,6 @@ export default function Admin() {
   const [translations, setTranslations] = useState<Record<string, string>>({})
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null)
   const [expandedTopics, setExpandedTopics] = useState<number[]>([])
-  const [showDeleteDialog, setShowDeleteDialog] = useState<number | null>(null)
   const [editingWordId, setEditingWordId] = useState<number | null>(null)
   const [editingTranslations, setEditingTranslations] = useState<
     Record<string, string>
@@ -98,39 +97,6 @@ export default function Admin() {
       toast({
         title: 'Success',
         description: 'Topic updated successfully',
-      })
-    },
-  })
-
-  const deleteTopicMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const { error } = await supabase.from('topics').delete().eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['topics'] })
-      toast({
-        title: 'Success',
-        description: 'Topic deleted successfully',
-      })
-    },
-  })
-
-  const handleDeleteTopic = (topicId: number) => {
-    deleteTopicMutation.mutate(topicId)
-    setShowDeleteDialog(null)
-  }
-
-  const deleteWordMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const { error } = await supabase.from('words').delete().eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['topics'] })
-      toast({
-        title: 'Success',
-        description: 'Word deleted successfully',
       })
     },
   })
@@ -340,15 +306,6 @@ export default function Admin() {
                     >
                       <EditIcon className="w-4 h-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label={`Delete deck ${topic.name}`}
-                      onClick={() => setShowDeleteDialog(topic.id)}
-                      className="text-lg p-2 border border-black bg-red-500 text-white"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
                   </div>
                 </div>
 
@@ -402,19 +359,10 @@ export default function Admin() {
                             variant="destructive"
                             size="icon"
                             aria-label={`Edit word ${word.id}`}
-                            className="absolute top-2 right-14"
+                            className="absolute top-2 right-2"
                             onClick={() => openEditDialog(word.id)}
                           >
                             <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            aria-label={`Delete word ${word.id}`}
-                            className="absolute top-2 right-2"
-                            onClick={() => deleteWordMutation.mutate(word.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
                           </Button>
                           {Object.entries(word.translations).map(
                             ([lang, translation]: [string, string]) => (
@@ -439,28 +387,6 @@ export default function Admin() {
           </div> */}
         </div>
       </div>
-      {showDeleteDialog !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center">
-            <h3 className="text-2xl font-semibold">Confirm Delete</h3>
-            <p>Are you sure you want to delete this topic?</p>
-            <div className="flex justify-center gap-4 mt-4">
-              <Button
-                onClick={() => handleDeleteTopic(showDeleteDialog)}
-                className="bg-red-500 text-white px-6 py-2"
-              >
-                Yes, Delete
-              </Button>
-              <Button
-                onClick={() => setShowDeleteDialog(null)}
-                className="bg-gray-300 px-6 py-2"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
       {editingWordId !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-12 rounded-lg shadow-lg space-y-4 text-center">
