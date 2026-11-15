@@ -35,6 +35,7 @@ export function TimerSlider({ selectedTime, onTimeSelect }: TimerSliderProps) {
     <div className="flex flex-col items-center space-y-4 max-w-md mx-auto p-4">
       {/* The slider itself */}
       <input
+        aria-label="Round duration in minutes"
         type="range"
         min="1"
         max="4"

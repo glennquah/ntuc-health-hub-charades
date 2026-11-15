@@ -33,7 +33,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     <button
       onClick={handleClick}
       disabled={disabled}
-      className={` ${color} ${stretchStyle} text-white font-bold py-3 px-24 rounded-full text-lg shadow-md transition-opacity 
+      className={` ${color} ${stretchStyle} text-white font-bold py-3 px-12 sm:px-24 rounded-full text-lg shadow-md transition-opacity
         ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:opacity-80'}`}
     >
       {words}

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import CustomButton from './CustomButton'
 
 interface GameScreenProps {
@@ -26,6 +26,9 @@ export function GameScreen({
   selectedLanguages,
   totalTime,
 }: GameScreenProps) {
+  const actionPending = useRef(false)
+  const actionTimer = useRef<ReturnType<typeof setTimeout>>()
+  useEffect(() => () => clearTimeout(actionTimer.current), [])
   const [showCorrectAnimation, setShowCorrectAnimation] = useState(false)
   const [showPassAnimation, setShowPassAnimation] = useState(false)
 
@@ -36,17 +39,23 @@ export function GameScreen({
   }, [timeLeft, onTimeUp])
 
   const handleCorrect = () => {
+    if (actionPending.current || timeLeft <= 0) return
+    actionPending.current = true
     setShowCorrectAnimation(true)
-    setTimeout(() => {
+    actionTimer.current = setTimeout(() => {
       setShowCorrectAnimation(false)
+      actionPending.current = false
       onCorrect()
     }, 800)
   }
 
   const handlePass = () => {
+    if (actionPending.current || timeLeft <= 0) return
+    actionPending.current = true
     setShowPassAnimation(true)
-    setTimeout(() => {
+    actionTimer.current = setTimeout(() => {
       setShowPassAnimation(false)
+      actionPending.current = false
       onPass()
     }, 800)
   }
@@ -78,10 +87,9 @@ export function GameScreen({
             exit={{ scale: 0.8, opacity: 0 }}
             className="flex justify-center items-center w-full bg-white rounded-xl"
           >
-            {/* FIXED WIDTH FOR DIFFERENT DEVICES */}
             <div
               className="
-            w-[350px] sm:w-[500px] md:w-[700px] lg:w-[900px] xl:w-[1100px]
+            w-full min-w-0
             min-h-[18rem] md:min-h-[20rem] lg:min-h-[22rem]
             flex flex-col justify-center items-center text-center"
             >
@@ -92,7 +100,7 @@ export function GameScreen({
                       key={lang}
                       className="
                 text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-6xl 
-                font-bold w-full truncate px-6 py-4"
+                font-bold w-full break-words px-6 py-4"
                     >
                       {word.translations[lang]}
                     </div>

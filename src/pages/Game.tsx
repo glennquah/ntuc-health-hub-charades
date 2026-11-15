@@ -10,15 +10,15 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import endIcon from '../../public/endicon.svg'
-import logo from '../../public/icons.svg'
+const endIcon = '/endicon.svg'
+const logo = '/icons.svg'
 
 export default function Game() {
   const navigate = useNavigate()
   const [gameSettings, setGameSettings] = useState<Partial<GameSettings>>({
     languages: [],
     topic: '',
-    timer: 0,
+    timer: 60,
   })
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [step, setStep] = useState<'language' | 'topics' | 'game' | 'results'>(
@@ -32,7 +32,7 @@ export default function Game() {
   }
 
   // Get words from supabase
-  const { data: words } = useQuery({
+  const { data: words, isLoading: wordsLoading, isError: wordsError } = useQuery({
     queryKey: ['words', gameSettings.topic],
     enabled: !!gameSettings.topic,
     queryFn: async () => {
@@ -63,6 +63,7 @@ export default function Game() {
       if (error) throw error
       return data
     },
+    onError: () => toast({ title: 'Could not submit score', description: 'Please try again.', variant: 'destructive' }),
     onSuccess: () => {
       toast({
         title: 'Score submitted!',
@@ -103,8 +104,9 @@ export default function Game() {
   // Start the game
   const startGame = () => {
     // Clear out used words and set the first word
-    setUsedWordIds([])
-    const firstWord = getAndStoreRandomWord()
+    if (!words?.length) return
+    const firstWord = words[Math.floor(Math.random() * words.length)]
+    setUsedWordIds([firstWord.id])
     setGameState({
       score: 0,
       currentWord: firstWord,
@@ -115,6 +117,10 @@ export default function Game() {
 
   // Called when user clicks "Continue" on the topics step
   const goToGame = () => {
+    if (wordsLoading || !words?.length) {
+      toast({ title: wordsError ? 'Unable to load words' : 'No words available', description: 'Wait for the deck to load or choose another deck.', variant: 'destructive' })
+      return
+    }
     startGame()
     setStep('game')
   }
@@ -151,23 +157,23 @@ export default function Game() {
     e.preventDefault()
     if (!gameState || !playerName.trim()) return
     submitScoreMutation.mutate({
-      name: playerName,
+      name: playerName.trim(),
       score: gameState.score,
     })
   }
 
   // Countdown
   useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (gameState?.isPlaying && gameState.timeLeft > 0) {
+    let timer: ReturnType<typeof setInterval>
+    if (step === 'game' && gameState?.isPlaying && gameState.timeLeft > 0) {
       timer = setInterval(() => {
         setGameState((prev) =>
-          prev ? { ...prev, timeLeft: prev.timeLeft - 1 } : null
+          prev ? { ...prev, timeLeft: Math.max(0, prev.timeLeft - 1) } : null
         )
       }, 1000)
     }
     return () => clearInterval(timer)
-  }, [gameState?.isPlaying, gameState?.timeLeft])
+  }, [step, gameState?.isPlaying, gameState?.timeLeft])
 
   return (
     <div>
@@ -240,6 +246,8 @@ export default function Game() {
 
               <form onSubmit={handleSubmitScore} className="space-y-4">
                 <Input
+                  maxLength={80}
+                  aria-label="Player name"
                   type="text"
                   placeholder="Enter your name"
                   value={playerName}

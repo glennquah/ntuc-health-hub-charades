@@ -2,7 +2,7 @@ import CustomButton from '@/components/CustomButton'
 import Header from '@/components/Header'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import octo from '../../public/octo.svg'
+const octo = '/octo.svg'
 
 export default function Index() {
   const navigate = useNavigate()

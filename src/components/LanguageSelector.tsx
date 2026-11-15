@@ -24,7 +24,9 @@ export function LanguageSelector({
       </p>
       <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
         {languages.map((lang) => (
-          <div
+          <button
+            type="button"
+            aria-pressed={selectedLanguages.includes(lang)}
             key={lang}
             className={`flex items-center justify-center rounded-full p-4 transition-colors cursor-pointer ${
               selectedLanguages.includes(lang)
@@ -33,10 +35,10 @@ export function LanguageSelector({
             }`}
             onClick={() => onToggleLanguage(lang)}
           >
-            <span className="px-12 text-lg font-medium leading-none">
+            <span className="px-2 text-lg font-medium leading-none">
               {lang}
             </span>
-          </div>
+          </button>
         ))}
       </div>
       <div className="flex justify-center mt-8">

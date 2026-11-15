@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { motion } from 'framer-motion'
 import { Loader2, Medal, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import logo from '../../public/icons.svg'
+const logo = '/icons.svg'
 
 export default function Leaderboard() {
   // Fetch overall leaderboard data
@@ -63,7 +63,7 @@ export default function Leaderboard() {
       case 2:
         return <Medal className="w-6 h-6 text-amber-600" />
       default:
-        return <p className="text-2xl text-yellow-500 font-bold">#{index}</p>
+        return <p className="text-2xl text-yellow-500 font-bold">#{index + 1}</p>
     }
   }
 
@@ -144,7 +144,7 @@ export default function Leaderboard() {
         {scoresByDeck &&
           Object.entries(scoresByDeck).map(([deck, scores]) => (
             <div key={deck}>
-              {renderLeaderboardSection(scores, `${deck} Deck Leaderboard`)}
+              {renderLeaderboardSection(scores.slice(0, 10), `${deck} Deck Leaderboard`)}
             </div>
           ))}
       </div>

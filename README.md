@@ -1,34 +1,82 @@
-# Kampong Klash
+# Lai Lai Guess Guess!
 
-Kampong Klash is a multi-lingual charades game inspired by Singapore’s vibrant culture! This project is built using **Vite**, **React**, and **TypeScript**, with client-side routing powered by **React Router**.
+A multilingual charades game inspired by Singapore’s everyday life and culture. Pick your languages, choose a deck, and get everyone guessing together.
 
----
+**Featured in GEN2060X and used at real get-togethers with seniors.** Built to bring people together through familiar words, shared laughter, and a little friendly competition.
 
-## **Features**
-- Multi-lingual charades game with various decks.
-- Client-side routing for pages like Home, Admin, and Leaderboard.
-- Top 10 leaderboard with scores grouped by deck.
-- Responsive design with smooth animations using **Framer Motion**.
-- Data integration with **Supabase**.
+> **A huge shoutout to the NTUC Health team at Bukit Merah!** Thank you for being part of bringing the game to life and sharing it with seniors in the community.
 
----
+![The Lai Lai Guess Guess! home screen](docs/screenshots/home.png)
 
-Tech Stack
+## How it works
 
-## **Frontend**
-•	Vite – A fast build tool that provides instant HMR (Hot Module Replacement) and optimized production builds.
+1. Choose English, Chinese, Hokkien, Cantonese, or a combination. Available translations depend on the deck.
+2. Choose a one- to four-minute round and a deck, or pick **Rojak** for a mix of all decks.
+3. Have one player act out the prompt while everyone else guesses. Tap **Correct** or **Skip** to move on.
+4. Submit a nickname and compare scores on the leaderboard.
 
-•	React – A component-based JavaScript library for building user interfaces.
+| Set up a round | Play together |
+| --- | --- |
+| ![Deck and timer selection](docs/screenshots/setup.png) | ![A bilingual charades prompt](docs/screenshots/game.png) |
 
-•	React Router – Client-side routing for single-page applications.
+![Results after a round](docs/screenshots/results.png)
 
-•	TypeScript – Typed JavaScript for improved developer experience and error handling.
+Screenshots were captured with Playwright using original sample prompts, without production records or participant information. These show the app interface, rather than photographs of gatherings.
 
-•	Tailwind CSS – A utility-first CSS framework that enables rapid UI development with minimal custom CSS.
+## Run locally
 
-•	Framer Motion – Animation library for React to create smooth transitions and interactions.
+Requires Node.js 24 LTS and npm.
 
-## Backend
-•	Supabase – Provides a real-time database (PostgreSQL), authentication, and backend API services.
+```sh
+npm ci
+cp .env.example .env.local
+```
 
-•	Supabase Storage – Used to store game assets and other static resources.
+Create your own Supabase project. For a **new, empty project**, run [the initial schema](supabase/migrations/202611150001_initial_schema.sql) and then [the sample seed](supabase/seed.sql) in its SQL editor. Alternatively, with the Supabase CLI and Docker installed, run `supabase start` and `supabase db reset` to initialize a local database. Resetting deletes local database data.
+
+Put your project's URL and public anon/publishable key in `.env.local`:
+
+```dotenv
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=your-public-anon-key
+```
+
+Use `supabase status` to find local credentials. Never use a service-role or secret key in a `VITE_` variable: Vite includes these values in browser bundles.
+
+```sh
+npm run dev
+```
+
+Open http://localhost:8080. Without configuration, the app displays setup instructions. The sample seed includes English and Chinese prompts; add reviewed Hokkien and Cantonese translations before running those languages at an event.
+
+## Manage decks
+
+The `/admin` page requires a Supabase Auth account with `app_metadata.role` set to `admin`. Create an account and set its app metadata through trusted Supabase administrative tools. Do not use user-editable `user_metadata` for authorization. Sign in again after changing the role.
+
+The migration enforces deck and word permissions with row-level security, independently of the page gate. Public users can read decks and submit scores; only administrators can change decks and words. Existing deployments need a review of their existing policies: adding these policies does not remove older permissive policies.
+
+Scores are client-submitted and publicly readable. Use nicknames, avoid personal information, and treat the leaderboard as casual event scoring. Public deployments needing abuse prevention should add server-side validation and rate limits.
+
+## Development
+
+```sh
+npm run lint
+npm run typecheck
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+Playwright checks desktop and mobile gameplay, scoring, word exhaustion, and the admin sign-in gate against intercepted sample API responses. It does not validate a live Supabase deployment or its access policies. `npm run screenshots` regenerates README images. The test server supplies fixture credentials and never contacts the original database.
+
+Built with React, TypeScript, Vite, Tailwind CSS, shadcn/ui, Framer Motion, React Query, and Supabase. Vercel's SPA rewrite is included; other static hosts should rewrite unknown paths to `index.html`.
+
+## Contributing and credits
+
+Bug reports and pull requests are welcome. Include reproduction steps and screenshots for UI changes, and run the checks above before submitting. Keep real participant data, credentials, and local environment files out of commits.
+
+Designed by Glenn Quah. Thanks again to the NTUC Health team at Bukit Merah and everyone who played together.
+
+## License
+
+Source code and original written documentation are available under the [MIT license](LICENSE). Branding, artwork, and screenshots are subject to the separate [asset notice](NOTICE.md). Confirm redistribution permission for those assets before making a branded release public.
