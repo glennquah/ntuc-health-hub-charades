@@ -45,11 +45,15 @@ export type Database = {
           created_at?: string
           id?: number
           name: string
+          description?: string
+          instructions?: string
         }
         Update: {
           created_at?: string
           id?: number
           name?: string
+          description?: string
+          instructions?: string
         }
         Relationships: []
       }

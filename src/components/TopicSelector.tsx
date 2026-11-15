@@ -23,7 +23,7 @@ export function TopicSelector({
   onTopicSelect,
   onNext,
 }: TopicSelectorProps) {
-  const { data: topics, isLoading } = useQuery({
+  const { data: topics, isLoading, isError } = useQuery({
     queryKey: ['topics'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -68,8 +68,10 @@ export function TopicSelector({
     )
   }
 
+  if (isError) return <p role="alert">Unable to load decks. Check your connection and database setup, then reload.</p>
+
   const allTopics = [
-    ...topics,
+    ...(topics || []),
     {
       id: 'rojak',
       name: 'Rojak',
@@ -95,7 +97,9 @@ export function TopicSelector({
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {allTopics.map((topic) => (
-          <motion.div
+          <motion.button
+            type="button"
+            aria-pressed={selectedTopic === topic.name}
             key={topic.id}
             onClick={() => onTopicSelect(topic.name)}
             whileHover={{ scale: 1.02 }}
@@ -106,7 +110,7 @@ export function TopicSelector({
             }`}
           >
             <p className="text-lg font-semibold">{topic.name}</p>
-          </motion.div>
+          </motion.button>
         ))}
       </div>
 

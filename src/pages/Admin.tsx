@@ -8,7 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Edit, EditIcon, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../../public/icons.svg'
+const logo = '/icons.svg'
 
 export default function Admin() {
   const [newTopic, setNewTopic] = useState('')
@@ -257,7 +257,7 @@ export default function Admin() {
             <Link to="/">
               <img
                 src={logo}
-                alt="Lai Lai Guess Guess!"
+                alt="Jamboree"
                 width={250}
                 height={250}
                 className="cursor-pointer"

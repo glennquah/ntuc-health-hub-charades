@@ -2,7 +2,7 @@ import CustomButton from '@/components/CustomButton'
 import Header from '@/components/Header'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import octo from '../../public/octo.svg'
+const octo = '/octo.svg'
 
 export default function Index() {
   const navigate = useNavigate()
@@ -19,7 +19,7 @@ export default function Index() {
           <div className="flex flex-col justify-center items-center gap-8">
             <img
               src={octo}
-              alt="Lai Lai Guess Guess!"
+              alt="Jamboree"
               width={200}
               height={200}
             />
