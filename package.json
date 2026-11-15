@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test:e2e": "playwright test",
-    "screenshots": "playwright test --project=desktop"
+    "screenshots": "playwright test --config=playwright.live.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.0",

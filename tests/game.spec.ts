@@ -20,7 +20,7 @@ test('play a full round with sample data', async ({ page }, testInfo) => {
   const screenshot = async (name: string) => {
     await page.evaluate(() => document.fonts.ready)
     await page.waitForTimeout(1000)
-    if (testInfo.project.name === 'desktop') await page.screenshot({ path: `docs/screenshots/${name}.png`, fullPage: true })
+    if (testInfo.project.name === 'desktop') await page.screenshot({ path: testInfo.outputPath(`${name}.png`), fullPage: true })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   }
   await page.goto('/')
@@ -45,5 +45,9 @@ test('play a full round with sample data', async ({ page }, testInfo) => {
   await screenshot('results')
   await page.goto('/admin')
   await expect(page.getByRole('heading', { name: 'Admin Panel' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /delete/i })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Show Words', exact: true }).click()
+  await expect(page.getByRole('button', { name: /delete/i })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Edit word 1', exact: true })).toBeVisible()
   expect(errors).toEqual([])
 })

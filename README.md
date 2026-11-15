@@ -17,11 +17,13 @@ A multilingual charades game inspired by Singapore’s everyday life and culture
 
 | Set up a round | Play together |
 | --- | --- |
-| ![Deck and timer selection](docs/screenshots/setup.png) | ![A bilingual charades prompt](docs/screenshots/game.png) |
+| ![Deck and timer selection](docs/screenshots/setup.png) | ![A multilingual charades prompt](docs/screenshots/game.png) |
 
-![Results after a round](docs/screenshots/results.png)
+| A live round after a correct guess | Round results |
+| --- | --- |
+| ![A real prompt with a running score](docs/screenshots/game-scored.png) | ![Results after a round](docs/screenshots/results.png) |
 
-Screenshots were captured with Playwright using original sample prompts, without production records or participant information. These show the app interface, rather than photographs of gatherings.
+Screenshots were captured with Playwright against the running game database. They show actual decks and prompts, with no participant names or leaderboard records. These are app screenshots rather than photographs of gatherings.
 
 ## Run locally
 
@@ -32,7 +34,7 @@ npm ci
 cp .env.example .env.local
 ```
 
-Create your own Supabase project. For a **new, empty project**, run [the initial schema](supabase/migrations/202611150001_initial_schema.sql) and then [the sample seed](supabase/seed.sql) in its SQL editor. Alternatively, with the Supabase CLI and Docker installed, run `supabase start` and `supabase db reset` to initialize a local database. Resetting deletes local database data.
+Create your own Supabase project. For a **new, empty project**, run [the initial schema](supabase/migrations/202611150001_initial_schema.sql), [deletion protection](supabase/migrations/202611150002_disable_public_deletion.sql), and then [the sample seed](supabase/seed.sql) in its SQL editor. Alternatively, with the Supabase CLI and Docker installed, run `supabase start` and `supabase db reset` to initialize a local database. Resetting deletes local database data.
 
 Put your project's URL and public anon/publishable key in `.env.local`:
 
@@ -51,9 +53,20 @@ Open http://localhost:8080. Without configuration, the app displays setup instru
 
 ## Manage decks
 
-The `/admin` dashboard is public and does not require sign-in. Anyone with access can add, edit, or delete shared decks and words. The supplied database policies intentionally allow these operations. Use a separate Supabase project for your own instance and keep backups of event decks.
+The `/admin` dashboard is public and does not require sign-in. Anyone with access can add or edit shared decks and words. Public deletion is disabled in the UI and blocked by the supplied database migration. Use a separate Supabase project for your own instance and keep backups of event decks.
 
-The migration targets fresh databases. Existing deployments should review their policies separately before adapting this schema.
+Use **Add New Deck** to create a deck with its description and instructions. Select **Show Words** on a deck to view its prompts, add translations in English, Chinese, Hokkien, or Cantonese, and use each word's pencil button to adjust translations. The deck's pencil button edits its name, description, and instructions. Deletion is reserved for trusted database administration; it is unavailable in the public portal.
+
+![Public admin portal for managing decks](docs/screenshots/admin.png)
+
+| Browse and add words | Adjust translations |
+| --- | --- |
+| ![Expanded deck with word-management controls](docs/screenshots/admin-words.png) | ![Edit a word in all four languages](docs/screenshots/admin-edit-word.png) |
+
+![Edit a deck's name, description, and instructions](docs/screenshots/admin-edit-deck.png)
+
+
+The initial migration targets fresh databases. Existing deployments can run [the deletion protection migration](supabase/migrations/202611150002_disable_public_deletion.sql) separately to revoke public delete/truncate privileges and reject deletes from browser roles, including through database functions. Existing policies should be reviewed separately.
 
 Scores are client-submitted and publicly readable. Use nicknames, avoid personal information, and treat the leaderboard as casual event scoring. Public deployments needing abuse prevention should add server-side validation and rate limits.
 
@@ -67,7 +80,9 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright checks desktop and mobile gameplay, scoring, word exhaustion, and the public dashboard against intercepted sample API responses. It does not validate a live Supabase deployment or its access policies. `npm run screenshots` regenerates README images. The test server supplies fixture credentials and never contacts the original database.
+Playwright checks desktop and mobile gameplay, scoring, word exhaustion, and the public dashboard against intercepted sample API responses. It does not validate a live Supabase deployment or its access policies. The test server supplies fixture credentials and never contacts the original database. Test images are saved as test artifacts and do not overwrite README images.
+
+`npm run screenshots` uses the real database configured in `.env.local` to capture gameplay and the public admin portal (overview, word list, word editor, and deck editor). It blocks database writes and leaderboard reads, and does not submit a score or change words. The database must be running and contain at least one deck with words.
 
 Built with React, TypeScript, Vite, Tailwind CSS, shadcn/ui, Framer Motion, React Query, and Supabase. Vercel's SPA rewrite is included; other static hosts should rewrite unknown paths to `index.html`.
 
