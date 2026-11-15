@@ -327,6 +327,7 @@ export default function Admin() {
                     <Button
                       variant="outline"
                       size="icon"
+                      aria-label={`Edit deck ${topic.name}`}
                       onClick={() =>
                         setEditingTopic({
                           id: topic.id,
@@ -342,6 +343,7 @@ export default function Admin() {
                     <Button
                       variant="outline"
                       size="icon"
+                      aria-label={`Delete deck ${topic.name}`}
                       onClick={() => setShowDeleteDialog(topic.id)}
                       className="text-lg p-2 border border-black bg-red-500 text-white"
                     >
@@ -399,7 +401,8 @@ export default function Admin() {
                           <Button
                             variant="destructive"
                             size="icon"
-                            className="absolute top-2 right-8"
+                            aria-label={`Edit word ${word.id}`}
+                            className="absolute top-2 right-14"
                             onClick={() => openEditDialog(word.id)}
                           >
                             <Edit className="w-4 h-4" />
@@ -407,6 +410,7 @@ export default function Admin() {
                           <Button
                             variant="destructive"
                             size="icon"
+                            aria-label={`Delete word ${word.id}`}
                             className="absolute top-2 right-2"
                             onClick={() => deleteWordMutation.mutate(word.id)}
                           >

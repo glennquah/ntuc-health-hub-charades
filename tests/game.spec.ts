@@ -20,7 +20,7 @@ test('play a full round with sample data', async ({ page }, testInfo) => {
   const screenshot = async (name: string) => {
     await page.evaluate(() => document.fonts.ready)
     await page.waitForTimeout(1000)
-    if (testInfo.project.name === 'desktop') await page.screenshot({ path: `docs/screenshots/${name}.png`, fullPage: true })
+    if (testInfo.project.name === 'desktop') await page.screenshot({ path: testInfo.outputPath(`${name}.png`), fullPage: true })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   }
   await page.goto('/')

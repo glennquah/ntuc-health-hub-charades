@@ -53,6 +53,8 @@ Open http://localhost:8080. Without configuration, the app displays setup instru
 
 The `/admin` dashboard is public and does not require sign-in. Anyone with access can add, edit, or delete shared decks and words. The supplied database policies intentionally allow these operations. Use a separate Supabase project for your own instance and keep backups of event decks.
 
+Use **Add New Deck** to create a deck with its description and instructions. Select **Show Words** on a deck to view its prompts, add translations in English, Chinese, Hokkien, or Cantonese, and use each word's pencil button to adjust translations. The deck's pencil button edits its name, description, and instructions. Delete buttons remove the selected word or deck.
+
 The migration targets fresh databases. Existing deployments should review their policies separately before adapting this schema.
 
 Scores are client-submitted and publicly readable. Use nicknames, avoid personal information, and treat the leaderboard as casual event scoring. Public deployments needing abuse prevention should add server-side validation and rate limits.
@@ -67,7 +69,9 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright checks desktop and mobile gameplay, scoring, word exhaustion, and the public dashboard against intercepted sample API responses. It does not validate a live Supabase deployment or its access policies. `npm run screenshots` regenerates README images. The test server supplies fixture credentials and never contacts the original database.
+Playwright checks desktop and mobile gameplay, scoring, word exhaustion, and the public dashboard against intercepted sample API responses. It does not validate a live Supabase deployment or its access policies. The test server supplies fixture credentials and never contacts the original database. Test images are saved as test artifacts and do not overwrite README images.
+
+`npm run screenshots` uses the real database configured in `.env.local` to capture gameplay and the public admin portal (overview, word list, word editor, and deck editor). It blocks database writes and leaderboard reads, and does not submit a score or change words. The database must be running and contain at least one deck with words.
 
 Built with React, TypeScript, Vite, Tailwind CSS, shadcn/ui, Framer Motion, React Query, and Supabase. Vercel's SPA rewrite is included; other static hosts should rewrite unknown paths to `index.html`.
 
